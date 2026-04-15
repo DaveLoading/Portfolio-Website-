@@ -1,0 +1,67 @@
+/* Import custom fonts used by the retro portfolio look. */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+/* Tailwind adds its base styles, components, and utility classes here. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth scrolling makes anchor links glide instead of jump. */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Basic page setup so the app fills nicely on most screens. */
+body {
+  /* Remove default browser spacing. */
+  margin: 0;
+  /* Keep mobile layout from getting too tiny. */
+  min-width: 320px;
+  /* Main text font for the whole app. */
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  /* Windows-style teal desktop background. */
+  background: #008080;
+  /* Default text color. */
+  color: #0a0a0a;
+  /* Gentle spacing between text lines. */
+  line-height: 1.4;
+}
+
+/* Make width and height math easier to reason about. */
+* {
+  /* Include padding/border in width/height calculations. */
+  box-sizing: border-box;
+}
+
+/* Links use the app's custom button and text styles. */
+a {
+  /* Link underline appears only on hover for cleaner look. */
+  text-decoration: none;
+}
+
+/* Buttons should use the same font as nearby text. */
+button {
+  /* Buttons use same font settings as nearby text. */
+  font: inherit;
+}
+
+/* Utility class for mono labels and retro UI text. */
+.font-mono {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+/* Strong keyboard focus ring for accessibility. */
+:focus-visible {
+  outline: 2px solid #2d63ff;
+  outline-offset: 2px;
+}
+
+/* Bring back underline when user hovers links. */
+a:hover {
+  text-decoration: underline;
+}
+
+/* Default text color inside any <main> area. */
+main {
+  color: #0a0a0a;
+}
