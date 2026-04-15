@@ -5,6 +5,8 @@ import react from "@vitejs/plugin-react";
 
 // Export one config object for Vite to read.
 export default defineConfig({
+  // Use relative asset paths so build works in GitHub Pages project URLs.
+  base: "./",
   // The React plugin lets Vite understand JSX/TSX files.
   plugins: [react()],
 });
