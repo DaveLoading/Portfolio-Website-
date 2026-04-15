@@ -2,8 +2,8 @@
 import React from "react";
 // ReactDOM connects React to the real browser page.
 import ReactDOM from "react-dom/client";
-// BrowserRouter enables URL-based navigation.
-import { BrowserRouter } from "react-router-dom";
+// HashRouter works on GitHub Pages where server-side routing is unavailable.
+import { HashRouter } from "react-router-dom";
 // App is the main UI component from App.tsx.
 import App from "./App.tsx";
 // Global CSS loads once for the whole app.
@@ -13,10 +13,10 @@ import "./index.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   // StrictMode helps catch common mistakes in development.
   <React.StrictMode>
-    {/* BrowserRouter wraps the whole app so routes work everywhere. */}
-    <BrowserRouter>
+    {/* HashRouter works on GitHub Pages without server-side routing. */}
+    <HashRouter>
       {/* Render the actual app UI. */}
       <App />
-    </BrowserRouter>
+    </HashRouter>
   </React.StrictMode>,
 );
