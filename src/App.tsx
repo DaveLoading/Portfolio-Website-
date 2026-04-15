@@ -221,7 +221,7 @@ type DesktopWindowProps = {
 function DesktopWindow({ title, icon, onClose, onToggleFill, isFilled, canToggleFill, onWindowDragStart, onWindowDragEnd, children }: DesktopWindowProps) {
   return (
     <motion.div layout className="max-w-full">
-      <Frame className="flex h-full flex-col bg-[#e5e5e5] text-black shadow-[2px_2px_0_#2b6262]">
+      <Frame className="flex flex-col bg-[#e5e5e5] text-black shadow-[2px_2px_0_#2b6262] lg:h-full">
         <div draggable onDragStart={onWindowDragStart} onDragEnd={onWindowDragEnd} className="flex cursor-grab items-center justify-between bg-[linear-gradient(90deg,#000080,#1084d0)] px-2 py-1 text-white active:cursor-grabbing">
           <div className="flex items-center gap-2">
             {icon}
@@ -248,7 +248,7 @@ function DesktopWindow({ title, icon, onClose, onToggleFill, isFilled, canToggle
             </button>
           </div>
         </div>
-        <div className="flex-1 min-h-0 overflow-auto bg-[#f5f5f5] p-4 leading-relaxed">{children}</div>
+        <div className="overflow-x-auto bg-[#f5f5f5] p-4 leading-relaxed lg:flex-1 lg:min-h-0 lg:overflow-auto">{children}</div>
       </Frame>
     </motion.div>
   );
@@ -261,7 +261,7 @@ function HomeContent() {
   return (
     <div className="w-full max-w-[900px]">
       <div className="border border-[#8fbcbc] bg-[#008080] p-3 shadow-[inset_1px_1px_0_#bce8e8,inset_-1px_-1px_0_#004f4f]">
-        <div className="grid h-full grid-cols-[120px_1fr] gap-4">
+        <div className="flex flex-col gap-4 sm:grid sm:h-full sm:grid-cols-[120px_1fr]">
           <div className="space-y-2 pt-1 text-white">
             <p className="text-[11px] font-mono uppercase tracking-[0.1em]">David Shamas OS</p>
             <p className="text-[11px] font-mono uppercase tracking-[0.1em] opacity-70">Click icons on the desktop to open windows.</p>
@@ -837,8 +837,8 @@ function PaintContent() {
           <div className="bg-white p-3">
             <div
               className="relative h-[300px] w-full cursor-crosshair border border-[#7f7f7f] sm:h-[360px]"
-              style={{ backgroundColor: canvasBgColor }}
-              // Pointer events drive drawing behavior.
+              style={{ backgroundColor: canvasBgColor, touchAction: "none" }}
+              // Pointer events drive drawing behavior (touchAction none prevents scroll interference).
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={commitDraft}
@@ -1681,7 +1681,7 @@ export default function App() {
           setDraggingWindowId(null);
           setDropTargetId(null);
         }}
-        className={`${filled ? "md:col-span-2" : ""} min-h-[320px] overflow-auto resize-y ${draggingWindowId && dropTargetId === id ? "ring-2 ring-[#ffe169] ring-offset-2 ring-offset-[#008080]" : ""}`}
+        className={`${filled ? "md:col-span-2" : ""} min-h-[320px] lg:overflow-auto lg:resize-y ${draggingWindowId && dropTargetId === id ? "ring-2 ring-[#ffe169] ring-offset-2 ring-offset-[#008080]" : ""}`}
       >
         <DesktopWindow
           id={id}
@@ -1706,17 +1706,36 @@ export default function App() {
   return (
     <div className="relative min-h-screen bg-[#008080] text-black">
       <div className="relative mx-auto flex max-w-6xl flex-col gap-4 px-3 py-4 pb-24 md:gap-5 md:py-6 md:pb-28 lg:flex-row">
-        <div className="grid w-full shrink-0 grid-cols-2 gap-2 pt-2 sm:grid-cols-3 md:grid-cols-4 lg:flex lg:w-[130px] lg:flex-col lg:items-center">
+        <div className="hidden lg:flex lg:w-[130px] lg:shrink-0 lg:flex-col lg:items-center">
           {/* Left-side desktop icons. */}
           {WINDOWS.map((window) => (
             <DesktopIcon key={window.id} label={window.title} icon={window.icon} onClick={() => openWindow(window.id)} />
           ))}
         </div>
 
-        <div className="relative h-[66vh] min-h-[520px] flex-1 lg:h-[78vh]">
+        <div className="relative flex-1 lg:h-[78vh] lg:min-h-[520px]">
+          {/* Mobile-only icon strip — tap to open windows; hidden on lg where the sidebar shows */}
+          <div className="lg:hidden mb-2 flex overflow-x-auto gap-1 border border-[#7f7f7f] bg-[#d8d8d8] px-1 py-1 shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080]">
+            {WINDOWS.map((win) => (
+              <button
+                key={win.id}
+                type="button"
+                onClick={() => openWindow(win.id)}
+                title={win.title}
+                className="flex min-w-[52px] shrink-0 flex-col items-center gap-0.5 border border-[#7f7f7f] bg-[#f4f1e8] px-1.5 py-1.5 text-[#000080] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#7f7f7f] active:shadow-[inset_-1px_-1px_0_#ffffff,inset_1px_1px_0_#7f7f7f]"
+              >
+                {win.icon}
+                <span className="font-mono text-[8px] uppercase leading-tight tracking-tight text-black">{win.title}</span>
+              </button>
+            ))}
+          </div>
+
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2 border border-[#7f7f7f] bg-[#d8d8d8] px-2 py-1 shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080]">
-            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#222]">
+            <p className="hidden md:block font-mono text-[10px] uppercase tracking-[0.1em] text-[#222]">
               Open windows from desktop icons. Drag a title bar onto another window to reorder. Fill focuses one window, Split shares the layout.
+            </p>
+            <p className="md:hidden font-mono text-[10px] uppercase tracking-[0.1em] text-[#222]">
+              Tap icons above to open windows
             </p>
             <div className="flex items-center gap-2">
               <span className="border border-[#7f7f7f] bg-[#efefef] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[#111]">
@@ -1735,7 +1754,7 @@ export default function App() {
           >
             <ArrowDown className="h-3 w-3" /> Scroll
           </button>
-          <div ref={windowPaneRef} className="h-full overflow-y-auto pr-1">
+          <div ref={windowPaneRef} className="lg:h-full lg:overflow-y-auto pr-1">
             <div className="flex flex-col gap-4 md:hidden">
               {/* Mobile: just stack windows in one column. */}
               {openWindows.map(renderWindowTile)}
@@ -1757,7 +1776,7 @@ export default function App() {
 
       {menuOpen ? (
         // Pop-up menu like classic Windows start menu.
-        <div className="fixed bottom-12 left-1 z-30 w-[340px] border border-[#7f7f7f] bg-[#c0c0c0] p-[2px] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#404040]">
+        <div className="fixed bottom-12 left-1 z-30 w-[calc(100vw-8px)] max-w-[340px] border border-[#7f7f7f] bg-[#c0c0c0] p-[2px] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#404040]">
           <div className="flex border border-[#7f7f7f] bg-[#c0c0c0]">
             <div className="w-9 bg-[linear-gradient(180deg,#000080,#1084d0)] px-1 py-2 text-center font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-white [writing-mode:vertical-rl] [text-orientation:mixed]">
               David Shamas
