@@ -1535,6 +1535,8 @@ export default function App() {
   const [dropTargetId, setDropTargetId] = useState<WindowId | null>(null);
   // Small toast text shown near the taskbar.
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  // Desktop-only scroll button is shown only when there is more content below.
+  const [showScrollToBottomButton, setShowScrollToBottomButton] = useState(false);
   // Refs let us scroll specific window tiles into view.
   const windowRefs = useRef<Partial<Record<WindowId, HTMLDivElement | null>>>({});
   // Ref for the scrollable area that holds all windows.
@@ -1599,6 +1601,17 @@ export default function App() {
     const pane = windowPaneRef.current;
     if (!pane) return;
     pane.scrollTo({ top: pane.scrollHeight, behavior: "smooth" });
+  };
+
+  // Check whether the window pane can still scroll downward.
+  const updateScrollButtonVisibility = () => {
+    const pane = windowPaneRef.current;
+    if (!pane) {
+      setShowScrollToBottomButton(false);
+      return;
+    }
+    const canScrollDown = pane.scrollTop + pane.clientHeight < pane.scrollHeight - 2;
+    setShowScrollToBottomButton(canScrollDown);
   };
 
   // Fill mode lets one window take the focus area.
@@ -1667,6 +1680,16 @@ export default function App() {
     const timeout = window.setTimeout(() => setStatusMessage(null), 2200);
     return () => window.clearTimeout(timeout);
   }, [statusMessage]);
+
+  // Recalculate button visibility when layout/content changes or screen resizes.
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(updateScrollButtonVisibility);
+    window.addEventListener("resize", updateScrollButtonVisibility);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", updateScrollButtonVisibility);
+    };
+  }, [openWindows, filledWindow]);
 
   // Map each window id to its matching content component.
   const windowContentMap: Record<WindowId, React.ReactNode> = {
@@ -1785,14 +1808,16 @@ export default function App() {
               </Button>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={scrollWindowPaneToBottom}
-            className="absolute bottom-3 right-3 z-10 hidden items-center gap-1 border border-[#7f7f7f] bg-[#d8d8d8] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[#333] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080] lg:flex"
-          >
-            <ArrowDown className="h-3 w-3" /> Scroll
-          </button>
-          <div ref={windowPaneRef} className="lg:h-full lg:overflow-y-auto pr-1">
+          {showScrollToBottomButton ? (
+            <button
+              type="button"
+              onClick={scrollWindowPaneToBottom}
+              className="absolute bottom-3 right-3 z-10 hidden items-center gap-1 border border-[#7f7f7f] bg-[#d8d8d8] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[#333] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080] lg:flex"
+            >
+              <ArrowDown className="h-3 w-3" /> Scroll
+            </button>
+          ) : null}
+          <div ref={windowPaneRef} onScroll={updateScrollButtonVisibility} className="lg:h-full lg:overflow-y-auto pr-1">
             <div className="flex flex-col gap-4 md:hidden">
               {/* Mobile: show focused window only when Fill is active, otherwise all windows. */}
               {(filledWindow ? openWindows.filter((id) => id === filledWindow) : openWindows).map(renderWindowTile)}
