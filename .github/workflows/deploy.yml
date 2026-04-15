@@ -1,0 +1,104 @@
+# deploy.yml — GitHub Actions workflow that automatically builds the React app
+# and publishes the output to GitHub Pages every time code is pushed to "main".
+#
+# HOW IT WORKS (two-job pipeline):
+#   1. build  — checks out the code, installs Node packages, runs "npm run build"
+#               (Vite compiles everything into the dist/ folder), then uploads
+#               dist/ as a special "pages artifact" that GitHub knows how to deploy.
+#   2. deploy — takes that uploaded artifact and publishes it to GitHub Pages.
+#
+# WHY TWO JOBS?
+#   Splitting build and deploy into separate jobs lets GitHub show each stage
+#   individually in the Actions tab, and the deploy job only runs if the build
+#   succeeds — so a broken build can never overwrite the live site.
+
+name: Deploy to GitHub Pages
+
+# ── Triggers ──────────────────────────────────────────────────────────────────
+on:
+  # Run automatically whenever commits are pushed to the main branch.
+  push:
+    branches: ["main"]
+  # Also allow triggering manually from the GitHub Actions tab (useful for
+  # re-deploying without making a code change).
+  workflow_dispatch:
+
+# ── Permissions ───────────────────────────────────────────────────────────────
+# GitHub Actions jobs run with a restricted token by default.
+# These three permissions are the exact set required by the official Pages deployment actions.
+permissions:
+  contents: read   # Read repository files during checkout.
+  pages: write     # Create/update the GitHub Pages deployment.
+  id-token: write  # Obtain an OIDC token so the deploy action can authenticate securely.
+
+# ── Concurrency guard ─────────────────────────────────────────────────────────
+# If two pushes arrive close together, only one deployment should run at a time.
+# "cancel-in-progress: false" means the second run waits for the first to finish
+# rather than cancelling it — this avoids race conditions on the live site.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+# ── Jobs ──────────────────────────────────────────────────────────────────────
+jobs:
+
+  # ── Job 1: build ────────────────────────────────────────────────────────────
+  # Compiles the React/TypeScript source into static HTML, CSS, and JS files.
+  build:
+    runs-on: ubuntu-latest  # Use a fresh Ubuntu virtual machine provided by GitHub.
+    steps:
+
+      # 1. Pull the repository code into the runner's workspace.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Install the correct version of Node.js.
+      #    "cache: npm" caches the node_modules between runs so installs are faster.
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # 3. Install exact dependency versions from package-lock.json.
+      #    "npm ci" is preferred over "npm install" in CI because it is
+      #    reproducible — it never silently updates packages.
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Run the Vite production build.
+      #    Vite reads vite.config.ts (which sets base: "/Portfolio-Website-/"),
+      #    compiles TypeScript, bundles React components, applies Tailwind CSS,
+      #    and writes everything to the dist/ folder.
+      - name: Build
+        run: npm run build
+
+      # 5. Configure the GitHub Pages environment for this repository.
+      #    This action sets internal metadata that the upload/deploy actions need.
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # 6. Package the dist/ folder as a Pages artifact.
+      #    GitHub stores this artifact temporarily so the deploy job can retrieve it.
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist  # The folder Vite wrote the production build into.
+
+  # ── Job 2: deploy ───────────────────────────────────────────────────────────
+  # Publishes the artifact produced by the build job to the live GitHub Pages site.
+  deploy:
+    environment:
+      name: github-pages
+      # Expose the live URL in the GitHub Actions summary after deployment.
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build  # This job only starts after the build job finishes successfully.
+    steps:
+
+      # Take the artifact uploaded in the build job and push it to GitHub Pages.
+      # The OIDC id-token permission (granted above) lets this action authenticate
+      # without needing a stored secret.
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

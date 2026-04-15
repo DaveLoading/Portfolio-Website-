@@ -1,0 +1,15 @@
+# .gitignore tells Git which files and folders to never track or commit.
+# Without this file, running "npm install" would stage hundreds of thousands
+# of dependency files, bloating the repository and slowing down every clone.
+
+# node_modules/ is created by "npm install" / "npm ci".
+# It contains all third-party packages (React, Vite, Tailwind, etc.).
+# These are always re-generated from package-lock.json, so they must NOT be
+# committed — committing them wastes space and causes merge conflicts.
+node_modules
+
+# dist/ is created by "npm run build" (Vite's production output).
+# The GitHub Actions workflow builds this folder fresh on every deploy, so
+# there is no need to store it in the repository.  Committing it would also
+# cause confusing diffs whenever the build output changes slightly.
+dist
