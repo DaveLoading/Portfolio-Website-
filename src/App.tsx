@@ -233,7 +233,7 @@ function DesktopWindow({ title, icon, onClose, onToggleFill, isFilled, canToggle
               aria-label={isFilled ? "Return to split layout" : "Expand this window"}
               onClick={onToggleFill}
               disabled={!canToggleFill}
-              className={`h-5 min-w-[42px] border border-[#d9d9d9] px-1 text-[9px] leading-[14px] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#404040] ${isFilled ? "bg-[#dfefff] text-black" : "bg-[#c0c0c0] text-black"} ${canToggleFill ? "" : "cursor-not-allowed opacity-50"}`}
+              className={`flex items-center justify-center h-8 min-w-[48px] border border-[#d9d9d9] px-1 text-[9px] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#404040] md:h-5 md:min-w-[42px] md:leading-[14px] ${isFilled ? "bg-[#dfefff] text-black" : "bg-[#c0c0c0] text-black"} ${canToggleFill ? "" : "cursor-not-allowed opacity-50"}`}
               title={canToggleFill ? (isFilled ? "This window is expanded. Click to return to split layout." : "Expand this window to full width.") : "Open at least two windows to enable Fill."}
             >
               {isFilled ? "Split" : "Fill"}
@@ -242,7 +242,7 @@ function DesktopWindow({ title, icon, onClose, onToggleFill, isFilled, canToggle
               type="button"
               aria-label="Close"
               onClick={onClose}
-              className="h-5 w-5 border border-[#d9d9d9] bg-[#c0c0c0] text-[11px] leading-[14px] text-black shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#404040]"
+              className="flex items-center justify-center h-8 w-8 border border-[#d9d9d9] bg-[#c0c0c0] text-[11px] text-black shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#404040] md:h-5 md:w-5"
             >
               x
             </button>
@@ -1226,6 +1226,25 @@ function SolitaireContent() {
     setDragState(null);
   };
 
+  // Tap a card onto a foundation pile (mobile tap-to-place).
+  const handleDropOnFoundation = (suit: CardSuit) => {
+    if (!dragState || dragState.cards.length !== 1) { setDragState(null); return; }
+    const card = dragState.cards[0];
+    if (!canPlaceOnFoundation(card, game.foundations[suit])) { setDragState(null); return; }
+    setGame((prev) => {
+      const nextFoundations = { ...prev.foundations, [suit]: [...prev.foundations[suit], card] };
+      const nextColumns = prev.columns.map((col) => [...col]);
+      let nextWaste = [...prev.waste];
+      if (dragState.source === "column" && typeof dragState.fromColumn === "number" && typeof dragState.startIndex === "number") {
+        nextColumns[dragState.fromColumn] = nextColumns[dragState.fromColumn].slice(0, dragState.startIndex);
+      } else if (dragState.source === "waste") {
+        nextWaste = prev.waste.slice(0, -1);
+      }
+      return { ...prev, foundations: nextFoundations, columns: nextColumns, waste: nextWaste, score: prev.score + 10 };
+    });
+    setDragState(null);
+  };
+
   // Start a fresh game.
   const restart = () => {
     setGame(initializeGame());
@@ -1236,37 +1255,49 @@ function SolitaireContent() {
     <div className="w-full max-w-[1120px]">
       <Frame className="p-3">
         <div className="mb-3 flex items-center justify-between border border-[#7f7f7f] bg-[#e8e8e8] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em]">
-          <p>Game Draw Move Drag Drop Foundation</p>
+          <p className="hidden md:block">Game Draw Move Drag Drop Foundation</p>
+          <p className="md:hidden">Solitaire</p>
           <p>Score: {String(game.score).padStart(5, "0")}</p>
         </div>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Button onClick={drawCard}>Draw</Button>
           <Button onClick={moveWasteToFoundation}>Move Waste</Button>
           <Button onClick={restart}>New Game</Button>
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em]">Drag card stacks between columns. Double-click top card to move to foundation.</p>
+          <p className="hidden md:block font-mono text-[10px] uppercase tracking-[0.1em]">Drag card stacks between columns. Double-click top card to move to foundation.</p>
+          <p className="md:hidden font-mono text-[10px] uppercase tracking-[0.1em]">Tap a card to select it, tap a column or foundation to move it.</p>
         </div>
-        <div className="border border-[#7f7f7f] bg-[#0a6f2a] p-4 shadow-[inset_1px_1px_0_#3aa45a,inset_-1px_-1px_0_#084b1e]">
+        {/* Tap the green board background to cancel any active selection. */}
+        <div
+          className="border border-[#7f7f7f] bg-[#0a6f2a] p-4 shadow-[inset_1px_1px_0_#3aa45a,inset_-1px_-1px_0_#084b1e]"
+          onClick={() => { if (dragState) setDragState(null); }}
+        >
           <div className="overflow-x-auto pb-1">
             <div className="grid min-w-[680px] grid-cols-6 gap-3">
             <button
               type="button"
-              onClick={drawCard}
+              onClick={(e) => { e.stopPropagation(); drawCard(); }}
               className="h-28 rounded-sm border border-[#d9d9d9] bg-[#f7f7f7] p-2 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]"
             >
               <div className="h-full rounded-sm border border-[#7f7f7f] bg-[repeating-linear-gradient(45deg,#0b3d8f,#0b3d8f_4px,#1555b7_4px,#1555b7_8px)]" />
               <p className="mt-1 inline-block border border-[#7f7f7f] bg-[#f3f3f3] px-1.5 py-0.5 font-mono text-[11px] font-semibold text-black">Stock: {game.stock.length}</p>
             </button>
+            {/* Waste pile: tap to select for placing on a column; drag still works on desktop. */}
             <button
               type="button"
-              onClick={moveWasteToFoundation}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (dragState) { setDragState(null); return; }
+                if (!game.waste.length) return;
+                setDragState({ source: "waste", cards: [game.waste[game.waste.length - 1]] });
+              }}
               className="h-28 rounded-sm border border-[#d9d9d9] bg-[#f7f7f7] p-2 text-left shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]"
             >
               {game.waste.length ? (
                 <div
                   draggable
-                  onDragStart={() => setDragState({ source: "waste", cards: [game.waste[game.waste.length - 1]] })}
+                  onDragStart={(e) => { e.stopPropagation(); setDragState({ source: "waste", cards: [game.waste[game.waste.length - 1]] }); }}
                   onDragEnd={() => setDragState(null)}
-                  className={`h-full rounded-sm border border-[#7f7f7f] bg-white p-2 ${suitMeta[game.waste[game.waste.length - 1].suit].isRed ? "text-[#b00020]" : "text-black"}`}
+                  className={`h-full rounded-sm border border-[#7f7f7f] bg-white p-2 transition-all ${suitMeta[game.waste[game.waste.length - 1].suit].isRed ? "text-[#b00020]" : "text-black"} ${dragState?.source === "waste" ? "ring-2 ring-[#ffe169] ring-offset-1" : ""}`}
                 >
                   <p className="font-mono text-sm font-semibold">{game.waste[game.waste.length - 1].rank}</p>
                   <div className="mt-1">{suitMeta[game.waste[game.waste.length - 1].suit].icon}</div>
@@ -1275,10 +1306,15 @@ function SolitaireContent() {
                 <div className="h-full rounded-sm border border-dashed border-[#7f7f7f]" />
               )}
             </button>
+            {/* Foundation piles: tap to drop the selected card here. */}
             {(["H", "D", "S", "C"] as CardSuit[]).map((suit) => {
               const top = game.foundations[suit][game.foundations[suit].length - 1];
               return (
-                <div key={suit} className="h-28 rounded-sm border border-[#d9d9d9] bg-[#f7f7f7] p-2 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
+                <div
+                  key={suit}
+                  className={`h-28 cursor-pointer rounded-sm border border-[#d9d9d9] bg-[#f7f7f7] p-2 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] transition-all ${dragState && dragState.cards.length === 1 ? "ring-2 ring-[#ffe169] ring-offset-1" : ""}`}
+                  onClick={(e) => { e.stopPropagation(); handleDropOnFoundation(suit); }}
+                >
                   {top ? (
                     <div className={`h-full rounded-sm border border-[#7f7f7f] bg-white p-2 ${suitMeta[top.suit].isRed ? "text-[#b00020]" : "text-black"}`}>
                       <p className="font-mono text-sm font-semibold">{top.rank}</p>
@@ -1300,40 +1336,44 @@ function SolitaireContent() {
               {game.columns.map((column, columnIndex) => (
                 <div
                   key={`column-${columnIndex}`}
-                  className={`min-h-[260px] rounded-sm border p-2 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] ${dragState ? "border-[#1a5f2b] bg-[#dcf3e1]" : "border-[#d9d9d9] bg-[#e6f6ea]"}`}
+                  className={`min-h-[260px] cursor-pointer rounded-sm border p-2 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] ${dragState ? "border-[#1a5f2b] bg-[#dcf3e1]" : "border-[#d9d9d9] bg-[#e6f6ea]"}`}
                   onDragOver={(event) => event.preventDefault()}
-                  onDrop={() => handleDropOnColumn(columnIndex)}
+                  onDrop={(e) => { e.stopPropagation(); handleDropOnColumn(columnIndex); }}
+                  onClick={(e) => { e.stopPropagation(); if (dragState) handleDropOnColumn(columnIndex); }}
                 >
                   {column.length ? (
                     column.map((card, cardIndex) => {
                       const isRed = suitMeta[card.suit].isRed;
-                      // This is the stack that would move if drag starts here.
                       const movingSequence = column.slice(cardIndex);
+                      // Highlight cards that are part of the active tap selection.
+                      const isSelected = dragState?.source === "column" && dragState.fromColumn === columnIndex && dragState.startIndex !== undefined && cardIndex >= dragState.startIndex;
                       return (
                         <div
                           key={card.id}
                           draggable
-                          onDoubleClick={() => {
-                            // Fast move: only top card can jump to foundation.
+                          onDoubleClick={(e) => {
+                            e.stopPropagation();
                             if (cardIndex === column.length - 1) moveColumnTopToFoundation(columnIndex);
                           }}
                           onDragStart={(event) => {
-                            // Block drag if this stack breaks sequence rules.
-                            if (!isValidSequence(movingSequence)) {
-                              event.preventDefault();
-                              return;
-                            }
-                            // Save drag source and exact moving cards.
+                            if (!isValidSequence(movingSequence)) { event.preventDefault(); return; }
                             setDragState({ source: "column", fromColumn: columnIndex, startIndex: cardIndex, cards: movingSequence });
                           }}
                           onDragEnd={() => setDragState(null)}
                           onDragOver={(event) => event.preventDefault()}
-                          onDrop={(event) => {
-                            event.preventDefault();
+                          onDrop={(event) => { event.preventDefault(); event.stopPropagation(); handleDropOnColumn(columnIndex); }}
+                          onClick={(event) => {
                             event.stopPropagation();
-                            handleDropOnColumn(columnIndex);
+                            if (dragState) {
+                              // A card is already selected — treat tap on any card as placing on this column.
+                              handleDropOnColumn(columnIndex);
+                            } else {
+                              // Select this card and the valid sequence below it.
+                              if (!isValidSequence(movingSequence)) return;
+                              setDragState({ source: "column", fromColumn: columnIndex, startIndex: cardIndex, cards: movingSequence });
+                            }
                           }}
-                          className={`relative ${cardIndex === 0 ? "mt-0" : "-mt-24"} h-36 rounded-sm border border-[#9d9d9d] bg-white p-2 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]`}
+                          className={`relative ${cardIndex === 0 ? "mt-0" : "-mt-24"} h-36 cursor-pointer rounded-sm border bg-white p-2 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] transition-all ${isSelected ? "border-[#ffe169] ring-2 ring-[#ffe169] ring-offset-1" : "border-[#9d9d9d]"}`}
                         >
                           <p className={`font-mono text-sm font-semibold ${isRed ? "text-[#b00020]" : "text-black"}`}>{card.rank}</p>
                           <div className={`${isRed ? "text-[#b00020]" : "text-black"}`}>{suitMeta[card.suit].icon}</div>
@@ -1342,7 +1382,9 @@ function SolitaireContent() {
                       );
                     })
                   ) : (
-                    <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#333]">Drop a king here</p>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#333]">
+                      {dragState ? "Drop King here" : "Empty — King only"}
+                    </p>
                   )}
                 </div>
               ))}
@@ -1730,34 +1772,30 @@ export default function App() {
             ))}
           </div>
 
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-2 border border-[#7f7f7f] bg-[#d8d8d8] px-2 py-1 shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080]">
-            <p className="hidden md:block font-mono text-[10px] uppercase tracking-[0.1em] text-[#222]">
+          <div className="mb-2 flex items-center gap-2 border border-[#7f7f7f] bg-[#d8d8d8] px-2 py-1 shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080]">
+            <p className="hidden flex-1 md:block font-mono text-[10px] uppercase tracking-[0.1em] text-[#222]">
               Open windows from desktop icons. Drag a title bar onto another window to reorder. Fill focuses one window, Split shares the layout.
             </p>
-            <p className="md:hidden font-mono text-[10px] uppercase tracking-[0.1em] text-[#222]">
-              Tap icons above to open windows
-            </p>
-            <div className="flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-2">
               <span className="border border-[#7f7f7f] bg-[#efefef] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[#111]">
-                Layout: {layoutMode}
+                <span className="hidden md:inline">Layout: </span>{layoutMode}
               </span>
-              {/* Quick way to undo drag/fill changes. */}
               <Button onClick={resetLayout} className="px-2 py-1 text-[10px]">
-                Reset Layout
+                <span className="hidden md:inline">Reset </span>Layout
               </Button>
             </div>
           </div>
           <button
             type="button"
             onClick={scrollWindowPaneToBottom}
-            className="absolute bottom-3 right-3 z-10 hidden items-center gap-1 border border-[#7f7f7f] bg-[#d8d8d8] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[#333] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080] md:flex"
+            className="absolute bottom-3 right-3 z-10 hidden items-center gap-1 border border-[#7f7f7f] bg-[#d8d8d8] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[#333] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080] lg:flex"
           >
             <ArrowDown className="h-3 w-3" /> Scroll
           </button>
           <div ref={windowPaneRef} className="lg:h-full lg:overflow-y-auto pr-1">
             <div className="flex flex-col gap-4 md:hidden">
-              {/* Mobile: just stack windows in one column. */}
-              {openWindows.map(renderWindowTile)}
+              {/* Mobile: show focused window only when Fill is active, otherwise all windows. */}
+              {(filledWindow ? openWindows.filter((id) => id === filledWindow) : openWindows).map(renderWindowTile)}
             </div>
             <div className="hidden gap-4 md:flex md:flex-col">
               {/* Desktop: filled windows at top, split windows below. */}
@@ -1800,22 +1838,24 @@ export default function App() {
       ) : null}
 
       <footer className="fixed bottom-0 left-0 right-0 z-20 border-t border-[#7f7f7f] bg-[#c0c0c0] px-2 py-2 shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#404040]">
-        <div className="mx-auto flex max-w-6xl items-center gap-2 overflow-x-auto">
-          {/* Menu toggle button in taskbar. */}
-          <Button onClick={() => setMenuOpen((value) => !value)} className="min-w-[72px] bg-[#e7e1d2]">
+        <div className="mx-auto flex max-w-6xl items-center gap-2">
+          {/* Menu toggle — always visible on left. */}
+          <Button onClick={() => setMenuOpen((value) => !value)} className="shrink-0 min-w-[60px] bg-[#e7e1d2]">
             Menu
           </Button>
-          {openWindows.map((id) => {
-            const item = WINDOWS.find((win) => win.id === id)!;
-            return (
-              // Taskbar button scrolls to its window.
-              <Button key={id} onClick={() => handleTaskbarWindowClick(id)} className="bg-[#d8d8d8] whitespace-nowrap">
-                {item.title}
-              </Button>
-            );
-          })}
-          {/* Live clock on the far right. */}
-          <div className="ml-auto border border-[#7f7f7f] bg-[#d8d8d8] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080]">
+          {/* Scrollable window button strip in the middle. */}
+          <div className="flex flex-1 items-center gap-2 overflow-x-auto">
+            {openWindows.map((id) => {
+              const item = WINDOWS.find((win) => win.id === id)!;
+              return (
+                <Button key={id} onClick={() => handleTaskbarWindowClick(id)} className="shrink-0 bg-[#d8d8d8] whitespace-nowrap">
+                  {item.title}
+                </Button>
+              );
+            })}
+          </div>
+          {/* Clock — always visible on right, never scrolls off. */}
+          <div className="shrink-0 border border-[#7f7f7f] bg-[#d8d8d8] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080]">
             {clock}
           </div>
         </div>
