@@ -393,13 +393,13 @@ function ContactContent() {
         <ScreenLabel subtitle="Contact" title="Let’s build something useful." />
         <div className="flex flex-wrap gap-2">
           <a
-            href="mailto:dshamas@asu.edu"
+            href="mailto:david.loadingexperiment@gmail.com"
             className="inline-flex items-center gap-2 border border-[#7f7f7f] bg-[#c0c0c0] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#404040]"
           >
             <Mail className="h-4 w-4" /> Email
           </a>
           <a
-            href="tel:+14805551234"
+            href="tel:+14807890271"
             className="inline-flex items-center gap-2 border border-[#7f7f7f] bg-[#c0c0c0] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#404040]"
           >
             <Phone className="h-4 w-4" /> Call
