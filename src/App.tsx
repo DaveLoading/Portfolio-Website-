@@ -57,10 +57,11 @@ type Project = {
 type LabItem = {
   id: string;
   title: string;
-  stage: "prototype" | "building" | "testing";
   summary: string;
-  projectId: string;
+  youtubeId: string;
 };
+
+const YOUTUBE_CONCEPT_PLAYLIST_URL = "https://www.youtube.com/playlist?list=PLCIh1-EWC0c4";
 
 type ObjectiveReference = {
   kind: "project" | "lab";
@@ -148,11 +149,44 @@ const PROJECTS: Project[] = [
   },
 ];
 
-// These are smaller "work in progress" items for the Lab window.
+// Concept projects for the Lab window — ideas explored in video, not yet full case studies.
 const LAB_ITEMS: LabItem[] = [
-  { id: "lab-agent", title: "Agent State Timeline", stage: "building", summary: "Interactive timeline that shows what the AI did, why, and what happens next.", projectId: "agent-os" },
-  { id: "lab-health", title: "Health Insight Digest", stage: "testing", summary: "Calmer cards and weekly summaries to reduce decision stress.", projectId: "health-loop" },
-  { id: "lab-uat", title: "UAT Competition Flow", stage: "prototype", summary: "Testing homepage-to-submission flow so students can register and submit with less friction.", projectId: "uat-competition-site" },
+  {
+    id: "lab-dtg-platen",
+    title: "DTG Platen Shark Tank Pitch",
+    summary: "A direct-to-garment printing platen concept pitched as a product story — focused on usability, market framing, and presentation design.",
+    youtubeId: "jCAoWXPXs0I",
+  },
+  {
+    id: "lab-basal-ganglia",
+    title: "Basal Ganglia Boogie",
+    summary: "An interactive concept tying movement and rhythm to neuroscience themes, exploring playful engagement with complex human systems.",
+    youtubeId: "D-d49nPwAyw",
+  },
+  {
+    id: "lab-neurolens",
+    title: "NeuroLens",
+    summary: "A wearable lens concept for neurological feedback — exploring how visual interfaces can make hidden body data feel understandable.",
+    youtubeId: "x7MYfber2ig",
+  },
+  {
+    id: "lab-neurobridge",
+    title: "NeuroBridge",
+    summary: "An assistive interaction concept that bridges neural input with digital control — early exploration of inclusive interface design.",
+    youtubeId: "IuHlv9B5Kfs",
+  },
+  {
+    id: "lab-lung-assist",
+    title: "Lung Assist Vest",
+    summary: "A respiratory support vest concept with human-centered wearable design — balancing medical utility, comfort, and daily use.",
+    youtubeId: "hg4xXrUCpeY",
+  },
+  {
+    id: "lab-neural-exo-brace",
+    title: "Neural Exo-Brace",
+    summary: "An exoskeleton brace concept combining neural signals with physical assist — prototyping how people might control adaptive mobility devices.",
+    youtubeId: "zkZptceqrJU",
+  },
 ];
 
 // HCI degree objectives shown in the Objectives window.
@@ -222,7 +256,7 @@ const focusFilters: Array<"All" | ProjectFocus> = ["All", "AI", "Health", "Websi
 const WINDOWS: WindowConfig[] = [
   { id: "home", title: "Home", icon: <Monitor className="h-5 w-5" />, initialPosition: { x: 180, y: 120 } },
   { id: "about", title: "About", icon: <User className="h-5 w-5" />, initialPosition: { x: 360, y: 180 } },
-  { id: "lab", title: "Lab", icon: <Beaker className="h-5 w-5" />, initialPosition: { x: 220, y: 260 } },
+  { id: "lab", title: "Concepts", icon: <Beaker className="h-5 w-5" />, initialPosition: { x: 220, y: 260 } },
   { id: "projects", title: "Projects", icon: <Folder className="h-5 w-5" />, initialPosition: { x: 460, y: 140 } },
   { id: "objectives", title: "Objectives", icon: <Target className="h-5 w-5" />, initialPosition: { x: 540, y: 260 } },
   { id: "contact", title: "Contact", icon: <Mail className="h-5 w-5" />, initialPosition: { x: 300, y: 340 } },
@@ -466,24 +500,43 @@ function ObjectivesContent({ onReferenceClick }: { onReferenceClick: (target: Po
   );
 }
 
-// Lab window content.
+// Lab window content — school concept projects shared on YouTube.
 function LabContent({ highlightedLabId }: { highlightedLabId: string | null }) {
   return (
-    <div className="w-[820px] max-w-full">
+    <div className="w-[920px] max-w-full">
       <Frame className="p-4">
-        <ScreenLabel subtitle="Lab" title="Projects I am working on right now." />
-        <div className="grid gap-3 md:grid-cols-3">
+        <ScreenLabel subtitle="Concepts" title="Concept projects not yet built as full case studies." />
+        <p className="mb-4 max-w-3xl leading-7">
+          These are early school concept projects — explored on video but not fully developed into the complete case studies shown in Projects.
+        </p>
+        <a
+          href={YOUTUBE_CONCEPT_PLAYLIST_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="mb-4 inline-flex items-center gap-2 border border-[#7f7f7f] bg-[#c0c0c0] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#404040]"
+        >
+          Watch full playlist <ExternalLink className="h-4 w-4" />
+        </a>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {LAB_ITEMS.map((item) => (
             <div
               key={item.id}
               className={`border border-[#7f7f7f] p-3 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] ${highlightedLabId === item.id ? "bg-[#dfefff]" : "bg-[#efefef]"}`}
             >
               <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="font-mono text-[10px] uppercase tracking-[0.12em]">{item.stage}</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.12em]">Concept</span>
                 <SquareDashed className="h-3.5 w-3.5 text-[#000080]" />
               </div>
               <h3 className="text-lg font-semibold leading-tight">{item.title}</h3>
               <p className="mt-2 text-sm leading-6">{item.summary}</p>
+              <a
+                href={`https://www.youtube.com/watch?v=${item.youtubeId}&list=PLCIh1-EWC0c4`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex items-center gap-2 border border-[#7f7f7f] bg-white px-2 py-1 text-sm shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] hover:bg-[#dfefff]"
+              >
+                Watch concept <ExternalLink className="h-3.5 w-3.5" />
+              </a>
             </div>
           ))}
         </div>
@@ -1551,7 +1604,8 @@ function ProjectsContent({
   return (
     <div className="w-full max-w-[1180px]">
       <Frame className="p-4">
-        <ScreenLabel subtitle="Projects" title="Full case-study cards with stronger contrast." />
+        <ScreenLabel subtitle="Projects" title="Fully built projects with complete case studies." />
+        <p className="mb-4 max-w-3xl leading-7">In-depth work with problem, process, outcome, and deliverables — the portfolio&apos;s finished project space.</p>
         <div className="mb-4 flex flex-wrap items-center gap-2">
           {focusFilters.map((focus) => (
             <Button
