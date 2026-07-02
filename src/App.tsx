@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowDown,
@@ -61,6 +61,19 @@ type LabItem = {
   summary: string;
   projectId: string;
 };
+
+type ObjectiveReference = {
+  kind: "project" | "lab";
+  id: string | null;
+};
+
+type DegreeObjective = {
+  number: number;
+  text: string;
+  references: ObjectiveReference[];
+};
+
+type PortfolioNavTarget = { window: "projects"; projectId: string } | { window: "lab"; labId: string };
 
 type WindowId = "home" | "about" | "lab" | "projects" | "contact" | "objectives" | "paint" | "solitaire";
 
@@ -143,14 +156,64 @@ const LAB_ITEMS: LabItem[] = [
 ];
 
 // HCI degree objectives shown in the Objectives window.
-const DEGREE_OBJECTIVES = [
-  "Articulate and apply concepts when creating human computer interactions that appropriately incorporate practical and aesthetic design concepts.",
-  "Implement effective interfaces and interactions across a variety of devices including IoT, mobile, computers and/or wearables.",
-  "Assess a proposed HCI technology based on its application, platform, and purpose. Convert this assessment into an effective user experience and informed human computer interaction design.",
-  "Analyze human factors such as cognition, use patterns, and demographics and apply this analysis to develop effective human computer interactions.",
-  "Evaluate HCI design options in terms of their cost to produce and against perceived benefit by the user.",
-  "Using professional tools and pipeline processes, prototype and build innovative interfaces and interactions for multiple platforms, including web, PC, mobile, handheld, and next-generation devices.",
+const DEGREE_OBJECTIVES: DegreeObjective[] = [
+  {
+    number: 1,
+    text: "Articulate and apply concepts when creating human computer interactions that appropriately incorporate practical and aesthetic design concepts.",
+    references: [
+      { kind: "project", id: null },
+      { kind: "lab", id: null },
+    ],
+  },
+  {
+    number: 2,
+    text: "Implement effective interfaces and interactions across a variety of devices including IoT, mobile, computers and/or wearables.",
+    references: [
+      { kind: "project", id: null },
+      { kind: "lab", id: null },
+    ],
+  },
+  {
+    number: 3,
+    text: "Assess a proposed HCI technology based on its application, platform, and purpose. Convert this assessment into an effective user experience and informed human computer interaction design.",
+    references: [
+      { kind: "project", id: null },
+      { kind: "lab", id: null },
+    ],
+  },
+  {
+    number: 4,
+    text: "Analyze human factors such as cognition, use patterns, and demographics and apply this analysis to develop effective human computer interactions.",
+    references: [
+      { kind: "project", id: null },
+      { kind: "lab", id: null },
+    ],
+  },
+  {
+    number: 5,
+    text: "Evaluate HCI design options in terms of their cost to produce and against perceived benefit by the user.",
+    references: [
+      { kind: "project", id: null },
+      { kind: "lab", id: null },
+    ],
+  },
+  {
+    number: 6,
+    text: "Using professional tools and pipeline processes, prototype and build innovative interfaces and interactions for multiple platforms, including web, PC, mobile, handheld, and next-generation devices.",
+    references: [
+      { kind: "project", id: null },
+      { kind: "lab", id: null },
+    ],
+  },
 ];
+
+function resolveReferenceTitle(reference: ObjectiveReference): string | null {
+  if (!reference.id) return null;
+  if (reference.kind === "project") {
+    return PROJECTS.find((project) => project.id === reference.id)?.title ?? null;
+  }
+  return LAB_ITEMS.find((item) => item.id === reference.id)?.title ?? null;
+}
 
 // These are the filter buttons used in the Projects window.
 const focusFilters: Array<"All" | ProjectFocus> = ["All", "AI", "Health", "Websites", "Research"];
@@ -331,32 +394,99 @@ function AboutContent() {
 }
 
 // Objectives window content.
-function ObjectivesContent() {
+function ReferenceSlot({
+  reference,
+  onReferenceClick,
+}: {
+  reference: ObjectiveReference;
+  onReferenceClick: (target: PortfolioNavTarget) => void;
+}) {
+  const title = resolveReferenceTitle(reference);
+  const label = reference.kind === "project" ? "Project" : "Lab";
+
+  if (!reference.id || !title) {
+    return (
+      <div className="flex items-center gap-2 border border-dashed border-[#7f7f7f] bg-[#f8f8f8] px-2 py-2 text-sm text-[#606060]">
+        <SquareDashed className="h-3.5 w-3.5 shrink-0 text-[#000080]" />
+        <span>
+          {label} — link pending
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() =>
+        onReferenceClick(
+          reference.kind === "project" ? { window: "projects", projectId: reference.id! } : { window: "lab", labId: reference.id! },
+        )
+      }
+      className="flex w-full items-center gap-2 border border-[#7f7f7f] bg-[#efefef] px-2 py-2 text-left text-sm shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] hover:bg-[#dfefff]"
+    >
+      {reference.kind === "project" ? (
+        <Folder className="h-3.5 w-3.5 shrink-0 text-[#000080]" />
+      ) : (
+        <Beaker className="h-3.5 w-3.5 shrink-0 text-[#000080]" />
+      )}
+      <span className="font-semibold">{title}</span>
+    </button>
+  );
+}
+
+function ObjectivesContent({ onReferenceClick }: { onReferenceClick: (target: PortfolioNavTarget) => void }) {
   return (
     <div className="w-[880px] max-w-full">
       <Frame className="p-4">
         <ScreenLabel subtitle="Objectives" title="HUMAN COMPUTER INTERACTION DEGREE OBJECTIVES" />
         <div className="grid gap-4 md:grid-cols-[1.15fr_0.85fr]">
           <div className="border border-[#7f7f7f] bg-[#efefef] p-4 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
-            <p className="leading-7">Core competencies I am developing through my Human Computer Interaction degree program.</p>
+            <p className="leading-7">Reference index mapping each HCI degree objective to qualifying portfolio work from Projects and Lab.</p>
             <div className="mt-4 space-y-3">
-              {DEGREE_OBJECTIVES.map((objective, index) => (
-                <div key={index} className="border border-[#7f7f7f] bg-white p-3">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Objective {index + 1}</p>
-                  <p className="mt-1 text-sm leading-6">{objective}</p>
-                </div>
-              ))}
+              {DEGREE_OBJECTIVES.map((objective) => {
+                const projectReferences = objective.references.filter((reference) => reference.kind === "project");
+                const labReferences = objective.references.filter((reference) => reference.kind === "lab");
+
+                return (
+                  <div key={objective.number} className="border border-[#7f7f7f] bg-white p-3">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Objective {objective.number}</p>
+                    <p className="mt-1 text-sm leading-6">{objective.text}</p>
+                    <div className="mt-3 border-t border-[#c0c0c0] pt-3">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Portfolio References</p>
+                      <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                        <div>
+                          <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[#404040]">Projects</p>
+                          <div className="space-y-2">
+                            {projectReferences.map((reference, index) => (
+                              <ReferenceSlot key={`project-${objective.number}-${index}`} reference={reference} onReferenceClick={onReferenceClick} />
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[#404040]">Lab</p>
+                          <div className="space-y-2">
+                            {labReferences.map((reference, index) => (
+                              <ReferenceSlot key={`lab-${objective.number}-${index}`} reference={reference} onReferenceClick={onReferenceClick} />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           <div className="border border-[#7f7f7f] bg-[#efefef] p-4 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
-            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Program Overview</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">How to Use This Reference</p>
             <div className="mt-2 space-y-2">
-              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Program: Human Computer Interaction</p>
-              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Competency Areas: Design, Multi-platform UX, Human Factors, Evaluation</p>
-              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Platforms: Web, PC, mobile, IoT, wearables, next-gen devices</p>
+              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Each objective lists linked Projects and Lab work that demonstrates that competency.</p>
+              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Dashed slots are placeholders — assign a project or lab ID in the data to connect them.</p>
+              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Linked entries open the matching window and jump to that item.</p>
             </div>
-            <p className="mt-4 text-sm leading-6">These objectives guide how I select portfolio projects and evaluate design decisions across platforms and user contexts.</p>
+            <p className="mt-4 text-sm leading-6">Valid IDs come from the existing Projects and Lab sections in this portfolio.</p>
           </div>
         </div>
       </Frame>
@@ -365,14 +495,17 @@ function ObjectivesContent() {
 }
 
 // Lab window content.
-function LabContent() {
+function LabContent({ highlightedLabId }: { highlightedLabId: string | null }) {
   return (
     <div className="w-[820px] max-w-full">
       <Frame className="p-4">
         <ScreenLabel subtitle="Lab" title="Projects I am working on right now." />
         <div className="grid gap-3 md:grid-cols-3">
           {LAB_ITEMS.map((item) => (
-            <div key={item.id} className="border border-[#7f7f7f] bg-[#efefef] p-3 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
+            <div
+              key={item.id}
+              className={`border border-[#7f7f7f] p-3 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] ${highlightedLabId === item.id ? "bg-[#dfefff]" : "bg-[#efefef]"}`}
+            >
               <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="font-mono text-[10px] uppercase tracking-[0.12em]">{item.stage}</span>
                 <SquareDashed className="h-3.5 w-3.5 text-[#000080]" />
@@ -1399,9 +1532,22 @@ function SolitaireContent() {
 }
 
 // Projects window with filters and next/previous controls.
-function ProjectsContent() {
+function ProjectsContent({
+  navTarget,
+  onNavHandled,
+}: {
+  navTarget: PortfolioNavTarget | null;
+  onNavHandled: () => void;
+}) {
   const [activeFocus, setActiveFocus] = useState<"All" | ProjectFocus>("All");
   const [activeProjectId, setActiveProjectId] = useState<string>(PROJECTS[0].id);
+
+  useEffect(() => {
+    if (navTarget?.window !== "projects") return;
+    setActiveFocus("All");
+    setActiveProjectId(navTarget.projectId);
+    onNavHandled();
+  }, [navTarget, onNavHandled]);
 
   // Only show projects that match the selected focus.
   const visibleProjects = useMemo(() => (activeFocus === "All" ? PROJECTS : PROJECTS.filter((project) => project.focus === activeFocus)), [activeFocus]);
@@ -1543,6 +1689,13 @@ export default function App() {
   const windowRefs = useRef<Partial<Record<WindowId, HTMLDivElement | null>>>({});
   // Ref for the scrollable area that holds all windows.
   const windowPaneRef = useRef<HTMLDivElement | null>(null);
+  // Cross-window navigation from Objectives reference links.
+  const [navTarget, setNavTarget] = useState<PortfolioNavTarget | null>(null);
+  const [highlightedLabId, setHighlightedLabId] = useState<string | null>(null);
+
+  const handleNavHandled = useCallback(() => {
+    setNavTarget(null);
+  }, []);
 
   // Update the taskbar clock every 30 seconds.
   useEffect(() => {
@@ -1578,6 +1731,16 @@ export default function App() {
     setMenuOpen(false);
     // Opening a window should also bring it to front.
     bringToFront(id);
+  };
+
+  const handleReferenceClick = (target: PortfolioNavTarget) => {
+    openWindow(target.window);
+    setNavTarget(target);
+    if (target.window === "lab") {
+      setHighlightedLabId(target.labId);
+    } else {
+      setHighlightedLabId(null);
+    }
   };
 
   // Close a window and clean up related state.
@@ -1694,16 +1857,19 @@ export default function App() {
   }, [openWindows, filledWindow]);
 
   // Map each window id to its matching content component.
-  const windowContentMap: Record<WindowId, React.ReactNode> = {
-    home: <HomeContent />,
-    about: <AboutContent />,
-    lab: <LabContent />,
-    projects: <ProjectsContent />,
-    objectives: <ObjectivesContent />,
-    contact: <ContactContent />,
-    paint: <PaintContent />,
-    solitaire: <SolitaireContent />,
-  };
+  const windowContentMap: Record<WindowId, React.ReactNode> = useMemo(
+    () => ({
+      home: <HomeContent />,
+      about: <AboutContent />,
+      lab: <LabContent highlightedLabId={highlightedLabId} />,
+      projects: <ProjectsContent navTarget={navTarget} onNavHandled={handleNavHandled} />,
+      objectives: <ObjectivesContent onReferenceClick={handleReferenceClick} />,
+      contact: <ContactContent />,
+      paint: <PaintContent />,
+      solitaire: <SolitaireContent />,
+    }),
+    [highlightedLabId, navTarget, handleNavHandled],
+  );
 
   // In split mode, distribute windows into two columns.
   const tiledColumns = useMemo(() => {
