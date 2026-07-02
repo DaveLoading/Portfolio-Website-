@@ -142,6 +142,16 @@ const LAB_ITEMS: LabItem[] = [
   { id: "lab-uat", title: "UAT Competition Flow", stage: "prototype", summary: "Testing homepage-to-submission flow so students can register and submit with less friction.", projectId: "uat-competition-site" },
 ];
 
+// HCI degree objectives shown in the Objectives window.
+const DEGREE_OBJECTIVES = [
+  "Articulate and apply concepts when creating human computer interactions that appropriately incorporate practical and aesthetic design concepts.",
+  "Implement effective interfaces and interactions across a variety of devices including IoT, mobile, computers and/or wearables.",
+  "Assess a proposed HCI technology based on its application, platform, and purpose. Convert this assessment into an effective user experience and informed human computer interaction design.",
+  "Analyze human factors such as cognition, use patterns, and demographics and apply this analysis to develop effective human computer interactions.",
+  "Evaluate HCI design options in terms of their cost to produce and against perceived benefit by the user.",
+  "Using professional tools and pipeline processes, prototype and build innovative interfaces and interactions for multiple platforms, including web, PC, mobile, handheld, and next-generation devices.",
+];
+
 // These are the filter buttons used in the Projects window.
 const focusFilters: Array<"All" | ProjectFocus> = ["All", "AI", "Health", "Websites", "Research"];
 
@@ -322,39 +332,31 @@ function AboutContent() {
 
 // Objectives window content.
 function ObjectivesContent() {
-  const objectiveProject = PROJECTS.find((project) => project.id === "uat-competition-site") ?? PROJECTS[0];
   return (
     <div className="w-[880px] max-w-full">
       <Frame className="p-4">
-        <ScreenLabel subtitle="Objectives" title="Current goals and active focus." />
+        <ScreenLabel subtitle="Objectives" title="HUMAN COMPUTER INTERACTION DEGREE OBJECTIVES" />
         <div className="grid gap-4 md:grid-cols-[1.15fr_0.85fr]">
           <div className="border border-[#7f7f7f] bg-[#efefef] p-4 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
-            <h3 className="text-2xl font-semibold">{objectiveProject.title}</h3>
-            <p className="mt-3 leading-7">{objectiveProject.details}</p>
+            <p className="leading-7">Core competencies I am developing through my Human Computer Interaction degree program.</p>
             <div className="mt-4 space-y-3">
-              <div className="border border-[#7f7f7f] bg-white p-3">
-                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Objective 1</p>
-                <p className="mt-1 text-sm leading-6">Clarify deadlines, categories, and submission requirements at first glance.</p>
-              </div>
-              <div className="border border-[#7f7f7f] bg-white p-3">
-                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Objective 2</p>
-                <p className="mt-1 text-sm leading-6">Reduce friction in registration and submission with stronger navigation cues.</p>
-              </div>
-              <div className="border border-[#7f7f7f] bg-white p-3">
-                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Objective 3</p>
-                <p className="mt-1 text-sm leading-6">Keep the interface energetic while preserving readability and accessibility.</p>
-              </div>
+              {DEGREE_OBJECTIVES.map((objective, index) => (
+                <div key={index} className="border border-[#7f7f7f] bg-white p-3">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Objective {index + 1}</p>
+                  <p className="mt-1 text-sm leading-6">{objective}</p>
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="border border-[#7f7f7f] bg-[#efefef] p-4 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
-            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Status</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Program Overview</p>
             <div className="mt-2 space-y-2">
-              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Phase: Prototype</p>
-              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Focus: Information Architecture</p>
-              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Priority: Submission Flow</p>
+              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Program: Human Computer Interaction</p>
+              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Competency Areas: Design, Multi-platform UX, Human Factors, Evaluation</p>
+              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Platforms: Web, PC, mobile, IoT, wearables, next-gen devices</p>
             </div>
-            <p className="mt-4 text-sm leading-6">This page tracks what I am actively optimizing in the project right now, with the same retro shell used across the portfolio.</p>
+            <p className="mt-4 text-sm leading-6">These objectives guide how I select portfolio projects and evaluate design decisions across platforms and user contexts.</p>
           </div>
         </div>
       </Frame>
