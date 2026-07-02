@@ -402,15 +402,12 @@ function ReferenceSlot({
   onReferenceClick: (target: PortfolioNavTarget) => void;
 }) {
   const title = resolveReferenceTitle(reference);
-  const label = reference.kind === "project" ? "Project" : "Lab";
 
   if (!reference.id || !title) {
     return (
       <div className="flex items-center gap-2 border border-dashed border-[#7f7f7f] bg-[#f8f8f8] px-2 py-2 text-sm text-[#606060]">
         <SquareDashed className="h-3.5 w-3.5 shrink-0 text-[#000080]" />
-        <span>
-          {label} — link pending
-        </span>
+        <span>Link pending</span>
       </div>
     );
   }
@@ -423,13 +420,8 @@ function ReferenceSlot({
           reference.kind === "project" ? { window: "projects", projectId: reference.id! } : { window: "lab", labId: reference.id! },
         )
       }
-      className="flex w-full items-center gap-2 border border-[#7f7f7f] bg-[#efefef] px-2 py-2 text-left text-sm shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] hover:bg-[#dfefff]"
+      className="flex w-full items-center gap-2 border border-[#7f7f7f] bg-white px-2 py-2 text-left text-sm shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] hover:bg-[#dfefff]"
     >
-      {reference.kind === "project" ? (
-        <Folder className="h-3.5 w-3.5 shrink-0 text-[#000080]" />
-      ) : (
-        <Beaker className="h-3.5 w-3.5 shrink-0 text-[#000080]" />
-      )}
       <span className="font-semibold">{title}</span>
     </button>
   );
@@ -442,51 +434,31 @@ function ObjectivesContent({ onReferenceClick }: { onReferenceClick: (target: Po
         <ScreenLabel subtitle="Objectives" title="HUMAN COMPUTER INTERACTION DEGREE OBJECTIVES" />
         <div className="grid gap-4 md:grid-cols-[1.15fr_0.85fr]">
           <div className="border border-[#7f7f7f] bg-[#efefef] p-4 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
-            <p className="leading-7">Reference index mapping each HCI degree objective to qualifying portfolio work from Projects and Lab.</p>
+            <p className="leading-7">Core competencies for my Human Computer Interaction degree program.</p>
             <div className="mt-4 space-y-3">
-              {DEGREE_OBJECTIVES.map((objective) => {
-                const projectReferences = objective.references.filter((reference) => reference.kind === "project");
-                const labReferences = objective.references.filter((reference) => reference.kind === "lab");
-
-                return (
-                  <div key={objective.number} className="border border-[#7f7f7f] bg-white p-3">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Objective {objective.number}</p>
-                    <p className="mt-1 text-sm leading-6">{objective.text}</p>
-                    <div className="mt-3 border-t border-[#c0c0c0] pt-3">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Portfolio References</p>
-                      <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                        <div>
-                          <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[#404040]">Projects</p>
-                          <div className="space-y-2">
-                            {projectReferences.map((reference, index) => (
-                              <ReferenceSlot key={`project-${objective.number}-${index}`} reference={reference} onReferenceClick={onReferenceClick} />
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-[#404040]">Lab</p>
-                          <div className="space-y-2">
-                            {labReferences.map((reference, index) => (
-                              <ReferenceSlot key={`lab-${objective.number}-${index}`} reference={reference} onReferenceClick={onReferenceClick} />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {DEGREE_OBJECTIVES.map((objective) => (
+                <div key={objective.number} className="border border-[#7f7f7f] bg-white p-3">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Objective {objective.number}</p>
+                  <p className="mt-1 text-sm leading-6">{objective.text}</p>
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="border border-[#7f7f7f] bg-[#efefef] p-4 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
-            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">How to Use This Reference</p>
-            <div className="mt-2 space-y-2">
-              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Each objective lists linked Projects and Lab work that demonstrates that competency.</p>
-              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Dashed slots are placeholders — assign a project or lab ID in the data to connect them.</p>
-              <p className="border border-[#7f7f7f] bg-white px-2 py-1 text-sm">Linked entries open the matching window and jump to that item.</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">References</p>
+            <div className="mt-3 space-y-4">
+              {DEGREE_OBJECTIVES.map((objective) => (
+                <div key={objective.number}>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Objective {objective.number}</p>
+                  <div className="mt-2 space-y-2">
+                    {objective.references.map((reference, index) => (
+                      <ReferenceSlot key={`${objective.number}-${index}`} reference={reference} onReferenceClick={onReferenceClick} />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-            <p className="mt-4 text-sm leading-6">Valid IDs come from the existing Projects and Lab sections in this portfolio.</p>
           </div>
         </div>
       </Frame>
