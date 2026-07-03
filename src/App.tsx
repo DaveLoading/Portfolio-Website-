@@ -139,6 +139,12 @@ const PROJECTS: Project[] = [
     process: "Reduced visual noise, simplified information hierarchy, and added gentler routines.",
     outcome: "A calmer interaction model that supports long-term habit building.",
     tags: ["Health UX", "Information Architecture", "UI Systems", "Research"],
+    links: [
+      {
+        label: "Figma",
+        url: "https://www.figma.com/design/LFMYSd2A265NaByRpjxNr1/Sip-project?m=auto&t=ogFWsilYz070ggpD-1",
+      },
+    ],
   },
   {
     id: "uat-competition-site",
