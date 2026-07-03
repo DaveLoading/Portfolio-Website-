@@ -1734,10 +1734,7 @@ function ProjectsContent({
                 onClick={() => setActiveProjectId(project.id)}
                 className={`w-full border border-[#7f7f7f] px-3 py-3 text-left shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] ${index === activeIndex ? "bg-[#dfefff]" : "bg-[#efefef]"}`}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-semibold">{project.title}</p>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.12em]">{project.year}</span>
-                </div>
+                <p className="font-semibold">{project.title}</p>
                 <p className="mt-2 text-sm leading-6">{project.summary}</p>
               </button>
             ))}
