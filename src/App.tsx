@@ -52,6 +52,7 @@ type Project = {
   process: string;
   outcome: string;
   tags: string[];
+  links?: Array<{ label: string; url: string }>;
 };
 
 type LabItem = {
@@ -96,17 +97,35 @@ type Card = {
 // These are the main projects shown in the Projects window.
 const PROJECTS: Project[] = [
   {
-    id: "agent-os",
-    title: "Magnetiq AI Agent Products",
+    id: "voice-ai-agent",
+    title: "Voice AI Agent",
     year: "2025",
     focus: "AI",
     status: "In Progress",
-    summary: "Designing an agent UX where the system state is always visible.",
-    details: "I am building a flow where users can see each decision point, confidence level, and handoff moment. The goal is to make AI feel explainable, not magical.",
-    problem: "Agent products can feel hidden and unpredictable, so people lose trust fast.",
-    process: "Mapped states, handoffs, fallback paths, and prompts into a visible interaction system.",
-    outcome: "A clearer AI interface model that makes actions and decisions understandable.",
-    tags: ["Agent UX", "System Thinking", "Interaction Design", "AI Product"],
+    summary: "Voice-first AI agent for guided conversations, disclosures, and human handoff.",
+    details: "Built on the Magnetiq / ZipApproval platform architecture — a multi-layer AI system spanning experience (web, SMS, voice), orchestration, RAG knowledge retrieval, memory, data, partner integrations, and governance. The voice agent at Ask MyLo guides users through compliant flows with consent, session logging, and escalation paths to human specialists.",
+    problem: "Regulated voice AI products must balance natural conversation with compliance, traceability, and clear handoff moments when automation reaches its limits.",
+    process: "Mapped the full stack from Docker/Ollama inference and FastAPI backend through RAG ingestion, prompt policy wrappers, GoHighLevel and CRM integrations, funnel step tracking, and admin analytics for drop-offs and lead quality.",
+    outcome: "A live voice AI experience with architecture designed for safe refusal templates, audit trails, human handoff CTAs, and measurable conversation funnels.",
+    tags: ["Voice AI", "Agent UX", "RAG", "Compliance", "System Architecture"],
+    links: [
+      { label: "Live Site", url: "https://askmylo.ai/" },
+      { label: "Architecture Doc", url: "./ZippApproval-Architecture-For-Development.pdf" },
+    ],
+  },
+  {
+    id: "appointment-booking-chatbot",
+    title: "Appointment Booking Chatbot",
+    year: "2025",
+    focus: "AI",
+    status: "In Progress",
+    summary: "Conversational agent focused on qualifying leads and booking appointments.",
+    details: "Designed and shipped a chatbot experience that walks users through discovery questions, surfaces the right next step, and routes them toward scheduled appointments. Built as part of the Magnetiq agent product line with emphasis on clear conversation states and conversion-oriented handoffs.",
+    problem: "Service businesses lose leads when booking flows feel generic, opaque, or disconnected from what the user already asked in chat.",
+    process: "Structured the conversation into identifiable steps, connected scheduling and CRM workflows, and tuned prompts for qualification before booking.",
+    outcome: "A deployed appointment-booking agent that turns chat intent into scheduled conversations with clearer user progress and handoff logic.",
+    tags: ["Chatbot UX", "Scheduling", "Lead Qualification", "Conversion", "AI Product"],
+    links: [{ label: "Live Site", url: "https://agentsuccessformula.com/" }],
   },
   {
     id: "health-loop",
@@ -135,28 +154,95 @@ const PROJECTS: Project[] = [
     tags: ["Web UX", "Information Architecture", "Interaction Design", "Event Platform"],
   },
   {
-    id: "awareness-studio",
-    title: "Dementia Awareness Experience",
-    year: "2023",
+    id: "dtg-platen",
+    title: "DTG Platen Shark Tank Pitch",
+    year: "2025",
     focus: "Research",
     status: "Shipped",
-    summary: "Turning dense research into visuals people can understand quickly.",
-    details: "I am restructuring content into layered blocks so users can move from overview to detail without overload. Clarity and sensitivity are the main goals.",
-    problem: "Important research can become hard to absorb when it is presented as one dense wall of information.",
-    process: "Built a narrative layout with clear sections, contrast, and paced reading.",
-    outcome: "An accessible awareness experience that makes the topic easier to understand and remember.",
-    tags: ["Information Design", "Accessibility", "Narrative", "Visual Communication"],
+    summary: "A direct-to-garment printing platen concept pitched as a full product story.",
+    details: "Developed and presented a DTG platen concept as a Shark Tank-style pitch — combining product usability, market framing, and persuasive presentation design into one deliverable.",
+    problem: "New hardware concepts need a clear story that connects user value, workflow, and business case in a single narrative.",
+    process: "Structured the pitch around problem, solution, demo flow, and market opportunity with visual support for the platen concept.",
+    outcome: "A complete pitch presentation that communicates the DTG platen idea as a viable product concept.",
+    tags: ["Product Design", "Presentation", "Pitch", "Visual Communication"],
+    links: [{ label: "Watch Pitch", url: "https://www.youtube.com/watch?v=jCAoWXPXs0I" }],
+  },
+  {
+    id: "m5-tour-guide",
+    title: "M5Core2 Open AI Tour Guide",
+    year: "2025",
+    focus: "AI",
+    status: "Shipped",
+    summary: "Handheld location-aware tour guide using M5Core2, GPS, and the OpenAI API.",
+    details: "Built a lab project on the M5Core2 that connects to Wi-Fi, tracks GPS with TinyGPSPlus (fallback to Phoenix, AZ), and uses OpenAI to surface Food, News, and Events based on location. Results render on-device in a touch-scrollable interface.",
+    problem: "Portable tour experiences need contextual local information without the friction of a full mobile app workflow.",
+    process: "Integrated embedded hardware, GPS parsing, API calls, and touch-scroll output on a constrained screen.",
+    outcome: "A working handheld AI tour guide prototype with category-based local results.",
+    tags: ["Embedded UX", "OpenAI", "IoT", "GPS", "Hardware"],
+    links: [{ label: "GitHub Repo", url: "https://github.com/DaveLoading/M5Core2-Open-AI-Tour-Guide" }],
+  },
+  {
+    id: "canva-design-uljt",
+    title: "Canva Visual Design Presentation",
+    year: "2025",
+    focus: "Research",
+    status: "Shipped",
+    summary: "A visual design presentation built in Canva for communicating an HCI concept.",
+    details: "Designed a polished visual presentation in Canva to communicate research, concept direction, and design rationale in a shareable format.",
+    problem: "Complex design ideas need a clear visual format that stakeholders can review quickly outside a live demo.",
+    process: "Organized content into a structured Canva deck with hierarchy, visuals, and narrative flow.",
+    outcome: "A presentation-ready design deliverable that communicates the concept at a glance.",
+    tags: ["Visual Design", "Presentation", "Canva", "Communication"],
+    links: [
+      {
+        label: "View on Canva",
+        url: "https://www.canva.com/design/DAGULJTqSyY/IZO2gTy_PC1YLZ4KKWhXAw/view?utm_content=DAGULJTqSyY&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hf8e78e90ea",
+      },
+    ],
+  },
+  {
+    id: "canva-design-phpi",
+    title: "Canva Interface Design Presentation",
+    year: "2025",
+    focus: "Research",
+    status: "Shipped",
+    summary: "An interface-focused design presentation created in Canva.",
+    details: "Created a Canva presentation focused on interface direction, layout decisions, and user-facing design concepts for review and feedback.",
+    problem: "Interface explorations need to be documented in a format that is easy to share before full build-out.",
+    process: "Built a visual deck in Canva with screens, annotations, and design notes.",
+    outcome: "A shareable interface design presentation ready for critique and iteration.",
+    tags: ["Interface Design", "Presentation", "Canva", "Visual Communication"],
+    links: [
+      {
+        label: "View on Canva",
+        url: "https://www.canva.com/design/DAGphpI1Lm4/L81XC4X2fsCcNAjiYooIFw/view?utm_content=DAGphpI1Lm4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2d9bd4aaae",
+      },
+    ],
+  },
+  {
+    id: "az-hugs",
+    title: "AZ HUGS Website",
+    year: "2025",
+    focus: "Websites",
+    status: "Shipped",
+    summary: "Website for a Phoenix nonprofit supporting people experiencing homelessness.",
+    details: "Designed and built the AZ HUGS web presence — a 501(c)(3) nonprofit focused on outreach, Sunday picnics, the HUGS HOUSE shelter program, and Arizona QCO tax-credit donations.",
+    problem: "Community nonprofits need a trustworthy site that makes programs, donation paths, and support options easy to find.",
+    process: "Mapped key user journeys (donate, volunteer, learn programs), designed mockups in Figma, and shipped the live site.",
+    outcome: "A live nonprofit website with clear calls to action for donations, care bags, and program information.",
+    tags: ["Web UX", "Nonprofit", "Figma", "Information Architecture"],
+    links: [
+      { label: "Live Site", url: "https://www.azhugs.org/" },
+      {
+        label: "Figma Mockup",
+        url: "https://www.figma.com/design/XIbKiTGC5OSfYMuQiGbDOb/AZ-HUGS-mockup?m=auto&t=lmFj5C2I5q8Bihtn-1",
+      },
+    ],
   },
 ];
 
 // Concept projects for the Lab window — ideas explored in video, not yet full case studies.
 const LAB_ITEMS: LabItem[] = [
-  {
-    id: "lab-dtg-platen",
-    title: "DTG Platen Shark Tank Pitch",
-    summary: "A direct-to-garment printing platen concept pitched as a product story — focused on usability, market framing, and presentation design.",
-    youtubeId: "jCAoWXPXs0I",
-  },
   {
     id: "lab-basal-ganglia",
     title: "Basal Ganglia Boogie",
@@ -1680,6 +1766,21 @@ function ProjectsContent({
                     </span>
                   ))}
                 </div>
+                {activeProject.links?.length ? (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {activeProject.links.map((link) => (
+                      <a
+                        key={link.url}
+                        href={link.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 border border-[#7f7f7f] bg-[#c0c0c0] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#404040] hover:bg-[#dfefff]"
+                      >
+                        {link.label} <ExternalLink className="h-4 w-4" />
+                      </a>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             ) : (
               <Frame className="p-4">No projects match this filter.</Frame>
