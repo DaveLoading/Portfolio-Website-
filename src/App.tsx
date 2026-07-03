@@ -158,6 +158,10 @@ const PROJECTS: Project[] = [
         label: "Figma",
         url: "https://www.figma.com/site/Ik8yipWDHgwa7eKWvDSwER/UATCompetitionWebsite?t=ogFWsilYz070ggpD-1",
       },
+      {
+        label: "Flowchart",
+        url: "https://www.figma.com/board/uGeHd3jZDNrXmAD5QL8rPV/flowchart?t=ogFWsilYz070ggpD-1",
+      },
     ],
   },
   {
