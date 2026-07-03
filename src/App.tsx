@@ -152,6 +152,13 @@ const PROJECTS: Project[] = [
     process: "Grouped deadlines, entry rules, and submission actions into a more obvious structure.",
     outcome: "A sharper event site experience that reduces friction and helps people act faster.",
     tags: ["Web UX", "Information Architecture", "Interaction Design", "Event Platform"],
+    links: [
+      { label: "Brand Guide", url: "https://www.behance.net/gallery/240609867/UAT-Competition-Website" },
+      {
+        label: "Figma",
+        url: "https://www.figma.com/site/Ik8yipWDHgwa7eKWvDSwER/UATCompetitionWebsite?t=ogFWsilYz070ggpD-1",
+      },
+    ],
   },
   {
     id: "dtg-platen",
