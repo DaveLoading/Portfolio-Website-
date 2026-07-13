@@ -15,6 +15,7 @@ import {
   Gamepad2,
   Github,
   Heart,
+  Linkedin,
   Minus,
   MousePointer2,
   PaintBucket,
@@ -289,7 +290,7 @@ const DEGREE_OBJECTIVES: DegreeObjective[] = [
     text: "Articulate and apply concepts when creating human computer interactions that appropriately incorporate practical and aesthetic design concepts.",
     references: [
       { kind: "project", id: "uat-competition-site" },
-      { kind: "lab", id: null },
+      { kind: "project", id: "az-hugs" },
     ],
   },
   {
@@ -697,6 +698,14 @@ function ContactContent() {
             className="inline-flex items-center gap-2 border border-[#7f7f7f] bg-[#c0c0c0] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#404040]"
           >
             <Github className="h-4 w-4" /> GitHub <ExternalLink className="h-4 w-4" />
+          </a>
+          <a
+            href="https://www.linkedin.com/in/david-shamas/"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 border border-[#7f7f7f] bg-[#c0c0c0] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#404040]"
+          >
+            <Linkedin className="h-4 w-4" /> LinkedIn <ExternalLink className="h-4 w-4" />
           </a>
           <a
             href="https://www.behance.net/dshame"
