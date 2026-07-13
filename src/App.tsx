@@ -43,7 +43,6 @@ type ProjectFocus = "AI" | "Health" | "Websites" | "Research";
 type Project = {
   id: string;
   title: string;
-  year: string;
   focus: ProjectFocus;
   status: "In Progress" | "Prototype" | "Shipped";
   summary: string;
@@ -99,7 +98,6 @@ const PROJECTS: Project[] = [
   {
     id: "voice-ai-agent",
     title: "Voice AI Agent",
-    year: "2025",
     focus: "AI",
     status: "In Progress",
     summary: "Voice-first AI agent for guided conversations, disclosures, and human handoff.",
@@ -116,7 +114,6 @@ const PROJECTS: Project[] = [
   {
     id: "appointment-booking-chatbot",
     title: "Appointment Booking Chatbot",
-    year: "2025",
     focus: "AI",
     status: "In Progress",
     summary: "Conversational agent focused on qualifying leads and booking appointments.",
@@ -129,12 +126,11 @@ const PROJECTS: Project[] = [
   },
   {
     id: "health-loop",
-    title: "Alzheimer's Preventative Tracking App",
-    year: "2024",
+    title: "The Color Purple",
     focus: "Health",
     status: "In Progress",
     summary: "Working on calm, repeatable health interactions for long-term use.",
-    details: "I am refining the daily and weekly flow so health insights feel supportive and readable. The focus is reduced cognitive load with clearer priority and pacing.",
+    details: "An Alzheimer's Preventative Tracking App. It works to build preventative habits to slow or prevent alzhiemer progression or build up.",
     problem: "Health tools can feel stressful, clinical, or too dense for repeated daily use.",
     process: "Reduced visual noise, simplified information hierarchy, and added gentler routines.",
     outcome: "A calmer interaction model that supports long-term habit building.",
@@ -149,7 +145,6 @@ const PROJECTS: Project[] = [
   {
     id: "uat-competition-site",
     title: "UAT Competition Website",
-    year: "2025",
     focus: "Websites",
     status: "Prototype",
     summary: "A competition site focused on clarity, speed, and engagement.",
@@ -173,7 +168,6 @@ const PROJECTS: Project[] = [
   {
     id: "dtg-platen",
     title: "DTG Platen Shark Tank Pitch",
-    year: "2025",
     focus: "Research",
     status: "Shipped",
     summary: "A direct-to-garment printing platen concept pitched as a full product story.",
@@ -187,7 +181,6 @@ const PROJECTS: Project[] = [
   {
     id: "m5-tour-guide",
     title: "M5Core2 Open AI Tour Guide",
-    year: "2025",
     focus: "AI",
     status: "Shipped",
     summary: "Handheld location-aware tour guide using M5Core2, GPS, and the OpenAI API.",
@@ -201,7 +194,6 @@ const PROJECTS: Project[] = [
   {
     id: "canva-design-uljt",
     title: "Alzheimer's Amyloid Beta Tracking — Personas",
-    year: "2025",
     focus: "Health",
     status: "Shipped",
     summary: "Persona presentation for an Alzheimer's amyloid beta tracking health project.",
@@ -220,7 +212,6 @@ const PROJECTS: Project[] = [
   {
     id: "canva-design-phpi",
     title: "Project Katalyst — Personas",
-    year: "2025",
     focus: "Research",
     status: "Shipped",
     summary: "Persona presentation for Project Katalyst, a game design project.",
@@ -239,7 +230,6 @@ const PROJECTS: Project[] = [
   {
     id: "az-hugs",
     title: "AZ HUGS Website",
-    year: "2025",
     focus: "Websites",
     status: "Shipped",
     summary: "Website for a Phoenix nonprofit supporting people experiencing homelessness.",
