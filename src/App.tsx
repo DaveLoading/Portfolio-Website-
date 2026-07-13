@@ -288,7 +288,7 @@ const DEGREE_OBJECTIVES: DegreeObjective[] = [
     number: 1,
     text: "Articulate and apply concepts when creating human computer interactions that appropriately incorporate practical and aesthetic design concepts.",
     references: [
-      { kind: "project", id: null },
+      { kind: "project", id: "uat-competition-site" },
       { kind: "lab", id: null },
     ],
   },
@@ -296,39 +296,39 @@ const DEGREE_OBJECTIVES: DegreeObjective[] = [
     number: 2,
     text: "Implement effective interfaces and interactions across a variety of devices including IoT, mobile, computers and/or wearables.",
     references: [
-      { kind: "project", id: null },
-      { kind: "lab", id: null },
+      { kind: "project", id: "dtg-platen" },
+      { kind: "project", id: "m5-tour-guide" },
     ],
   },
   {
     number: 3,
     text: "Assess a proposed HCI technology based on its application, platform, and purpose. Convert this assessment into an effective user experience and informed human computer interaction design.",
     references: [
-      { kind: "project", id: null },
-      { kind: "lab", id: null },
+      { kind: "lab", id: "lab-neural-exo-brace" },
+      { kind: "project", id: "voice-ai-agent" },
     ],
   },
   {
     number: 4,
     text: "Analyze human factors such as cognition, use patterns, and demographics and apply this analysis to develop effective human computer interactions.",
     references: [
-      { kind: "project", id: null },
-      { kind: "lab", id: null },
+      { kind: "project", id: "canva-design-phpi" },
+      { kind: "project", id: "canva-design-uljt" },
     ],
   },
   {
     number: 5,
     text: "Evaluate HCI design options in terms of their cost to produce and against perceived benefit by the user.",
     references: [
-      { kind: "project", id: null },
-      { kind: "lab", id: null },
+      { kind: "lab", id: "lab-basal-ganglia" },
+      { kind: "lab", id: "lab-lung-assist" },
     ],
   },
   {
     number: 6,
     text: "Using professional tools and pipeline processes, prototype and build innovative interfaces and interactions for multiple platforms, including web, PC, mobile, handheld, and next-generation devices.",
     references: [
-      { kind: "project", id: null },
+      { kind: "project", id: "az-hugs" },
       { kind: "lab", id: null },
     ],
   },
@@ -340,6 +340,21 @@ function resolveReferenceTitle(reference: ObjectiveReference): string | null {
     return PROJECTS.find((project) => project.id === reference.id)?.title ?? null;
   }
   return LAB_ITEMS.find((item) => item.id === reference.id)?.title ?? null;
+}
+
+function resolveReferenceMedia(reference: ObjectiveReference): Array<{ label: string; url: string }> {
+  if (!reference.id) return [];
+  if (reference.kind === "project") {
+    return PROJECTS.find((project) => project.id === reference.id)?.links ?? [];
+  }
+  const labItem = LAB_ITEMS.find((item) => item.id === reference.id);
+  if (!labItem) return [];
+  return [
+    {
+      label: "Watch Concept",
+      url: `https://www.youtube.com/watch?v=${labItem.youtubeId}&list=PLCIh1-EWC0c4`,
+    },
+  ];
 }
 
 // These are the filter buttons used in the Projects window.
@@ -529,6 +544,7 @@ function ReferenceSlot({
   onReferenceClick: (target: PortfolioNavTarget) => void;
 }) {
   const title = resolveReferenceTitle(reference);
+  const mediaLinks = resolveReferenceMedia(reference);
 
   if (!reference.id || !title) {
     return (
@@ -540,17 +556,34 @@ function ReferenceSlot({
   }
 
   return (
-    <button
-      type="button"
-      onClick={() =>
-        onReferenceClick(
-          reference.kind === "project" ? { window: "projects", projectId: reference.id! } : { window: "lab", labId: reference.id! },
-        )
-      }
-      className="flex w-full items-center gap-2 border border-[#7f7f7f] bg-white px-2 py-2 text-left text-sm shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] hover:bg-[#dfefff]"
-    >
-      <span className="font-semibold">{title}</span>
-    </button>
+    <div className="border border-[#7f7f7f] bg-white p-2 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
+      <button
+        type="button"
+        onClick={() =>
+          onReferenceClick(
+            reference.kind === "project" ? { window: "projects", projectId: reference.id! } : { window: "lab", labId: reference.id! },
+          )
+        }
+        className="w-full text-left text-sm font-semibold hover:text-[#000080]"
+      >
+        {title}
+      </button>
+      {mediaLinks.length > 0 ? (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {mediaLinks.map((link) => (
+            <a
+              key={link.url}
+              href={link.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 border border-[#7f7f7f] bg-[#efefef] px-2 py-1 text-[11px] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080] hover:bg-[#dfefff]"
+            >
+              {link.label} <ExternalLink className="h-3 w-3" />
+            </a>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -573,7 +606,7 @@ function ObjectivesContent({ onReferenceClick }: { onReferenceClick: (target: Po
           </div>
 
           <div className="border border-[#7f7f7f] bg-[#efefef] p-4 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
-            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">References</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Objective Projects</p>
             <div className="mt-3 space-y-4">
               {DEGREE_OBJECTIVES.map((objective) => (
                 <div key={objective.number}>
