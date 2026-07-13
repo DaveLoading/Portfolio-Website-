@@ -17,7 +17,6 @@ import {
   Heart,
   Linkedin,
   Minus,
-  MousePointer2,
   PaintBucket,
   Paintbrush,
   Pencil,
@@ -1112,21 +1111,6 @@ function PaintContent() {
                   {tool.icon}
                 </button>
               ))}
-              <button
-                type="button"
-                aria-label="Select"
-                title="Select"
-                className="flex h-8 items-center justify-center border border-[#7f7f7f] bg-white shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]"
-              >
-                <MousePointer2 className="h-3.5 w-3.5" />
-              </button>
-              <button
-                type="button"
-                aria-label="Decorative line tool"
-                className="flex h-8 items-center justify-center border border-[#7f7f7f] bg-white shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]"
-              >
-                <Minus className="h-3.5 w-3.5 rotate-45" />
-              </button>
             </div>
           </div>
           <div className="bg-white p-3">
