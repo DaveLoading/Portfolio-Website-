@@ -495,11 +495,11 @@ function DesktopWindow({ title, icon, onClose, onToggleFill, isFilled, canToggle
           <div className="flex items-center gap-1">
             <button
               type="button"
-              aria-label={isFilled ? "Return to split layout" : "Expand this window"}
+              aria-label={isFilled ? "Move to split layout" : "Add to focus stack"}
               onClick={onToggleFill}
               disabled={!canToggleFill}
               className={`flex items-center justify-center h-8 min-w-[48px] border border-[#d9d9d9] px-1 text-[9px] shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#404040] md:h-5 md:min-w-[42px] md:leading-[14px] ${isFilled ? "bg-[#dfefff] text-black" : "bg-[#c0c0c0] text-black"} ${canToggleFill ? "" : "cursor-not-allowed opacity-50"}`}
-              title={canToggleFill ? (isFilled ? "This window is expanded. Click to return to split layout." : "Expand this window to full width.") : "Open at least two windows to enable Fill."}
+              title={canToggleFill ? (isFilled ? "Remove from focus stack and move to split grid." : "Add to the focused scroll stack at full width.") : "Open at least two windows to enable Fill."}
             >
               {isFilled ? "Split" : "Fill"}
             </button>
@@ -2025,8 +2025,8 @@ export default function App() {
   const [openWindows, setOpenWindows] = useState<WindowId[]>(["home", "projects"]);
   // Z-order list (last item is visually on top).
   const [zStack, setZStack] = useState<WindowId[]>(["home", "projects"]);
-  // Window that is in focused "Fill" mode.
-  const [filledWindow, setFilledWindow] = useState<WindowId | null>("home");
+  // Windows in focused full-width scroll stack.
+  const [focusedWindowIds, setFocusedWindowIds] = useState<WindowId[]>(["home", "projects"]);
   // Drag and drop state for reordering windows.
   const [draggingWindowId, setDraggingWindowId] = useState<WindowId | null>(null);
   const [dropTargetId, setDropTargetId] = useState<WindowId | null>(null);
@@ -2082,7 +2082,7 @@ export default function App() {
       return [...prev, id];
     });
     setMenuOpen(false);
-    setFilledWindow(id);
+    setFocusedWindowIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
     bringToFront(id);
   };
 
@@ -2103,7 +2103,7 @@ export default function App() {
     const windowLabel = WINDOWS.find((window) => window.id === id)?.title ?? id;
     setOpenWindows((prev) => prev.filter((item) => item !== id));
     setZStack((prev) => prev.filter((item) => item !== id));
-    setFilledWindow((prev) => (prev === id ? null : prev));
+    setFocusedWindowIds((prev) => prev.filter((item) => item !== id));
     if (id === "projects") {
       setProjectDetailId(null);
     }
@@ -2137,15 +2137,17 @@ export default function App() {
     setShowScrollToBottomButton(canScrollDown);
   };
 
-  // Fill mode lets one window take the focus area.
+  // Fill mode adds/removes a window from the focused scroll stack.
   const toggleWindowFill = (id: WindowId) => {
-    // Fill mode only matters when 2+ windows are open.
     if (openWindows.length <= 1) return;
     const windowLabel = WINDOWS.find((window) => window.id === id)?.title ?? id;
-    setFilledWindow((prev) => {
-      const nextValue = prev === id ? null : id;
-      announceStatus(nextValue ? `${windowLabel} expanded to focus mode.` : "Layout returned to split mode.");
-      return nextValue;
+    setFocusedWindowIds((prev) => {
+      if (prev.includes(id)) {
+        announceStatus(`${windowLabel} moved to split layout.`);
+        return prev.filter((item) => item !== id);
+      }
+      announceStatus(`${windowLabel} expanded to focus mode.`);
+      return [...prev, id];
     });
   };
 
@@ -2177,25 +2179,15 @@ export default function App() {
     setDropTargetId(null);
     const reordered = WINDOWS.map((window) => window.id).filter((id) => openWindows.includes(id));
     setOpenWindows(reordered);
-    setFilledWindow(reordered[0] ?? "home");
+    setFocusedWindowIds(reordered);
     announceStatus("Layout reset with focused view.");
   };
 
-  // A window is "filled" if it is the only one or it matches filledWindow.
-  const isWindowFilled = (id: WindowId) => openWindows.length === 1 || filledWindow === id;
+  const isWindowFocused = (id: WindowId) => openWindows.length === 1 || focusedWindowIds.includes(id);
 
-  // If only one window is open, fill mode is not needed.
   useEffect(() => {
-    if (openWindows.length <= 1) {
-      setFilledWindow(null);
-      return;
-    }
-
-    if (filledWindow && !openWindows.includes(filledWindow)) {
-      // If filled window was closed, clear stale id.
-      setFilledWindow(null);
-    }
-  }, [filledWindow, openWindows]);
+    setFocusedWindowIds((prev) => prev.filter((id) => openWindows.includes(id)));
+  }, [openWindows]);
 
   // Hide status toast after a short delay.
   useEffect(() => {
@@ -2212,7 +2204,7 @@ export default function App() {
       window.cancelAnimationFrame(frame);
       window.removeEventListener("resize", updateScrollButtonVisibility);
     };
-  }, [openWindows, filledWindow]);
+  }, [openWindows, focusedWindowIds]);
 
   // Map each window id to its matching content component.
   const windowContentMap: Record<WindowId, React.ReactNode> = useMemo(
@@ -2240,24 +2232,21 @@ export default function App() {
   // In split mode, distribute windows into two columns.
   const tiledColumns = useMemo(() => {
     const columns: [WindowId[], WindowId[]] = [[], []];
-    // Only non-filled windows belong in split columns.
-    const tiledWindows = openWindows.filter((id) => !isWindowFilled(id));
+    const tiledWindows = openWindows.filter((id) => !isWindowFocused(id));
     tiledWindows.forEach((id, index) => {
-      // Alternate windows: 0,2,4... left and 1,3,5... right.
       columns[index % 2].push(id);
     });
     return columns;
-  }, [filledWindow, openWindows]);
+  }, [focusedWindowIds, openWindows]);
 
-  // Filled windows render first in focused mode.
-  const filledWindows = openWindows.filter((id) => isWindowFilled(id));
-  // Text shown in the layout badge.
-  const layoutMode = openWindows.length === 1 || filledWindow ? "Focused" : "Split";
+  const focusedWindows = openWindows.filter((id) => isWindowFocused(id));
+  const splitWindows = openWindows.filter((id) => !isWindowFocused(id));
+  const layoutMode = openWindows.length === 1 || focusedWindowIds.length > 0 ? "Focused" : "Split";
 
   // Shared renderer for each open window tile.
   const renderWindowTile = (id: WindowId) => {
     const windowConfig = WINDOWS.find((win) => win.id === id)!;
-    const filled = isWindowFilled(id);
+    const focused = isWindowFocused(id);
     return (
       <div
         key={id}
@@ -2280,7 +2269,7 @@ export default function App() {
           setDraggingWindowId(null);
           setDropTargetId(null);
         }}
-        className={`${filled ? "md:col-span-2" : ""} min-h-[320px] lg:overflow-auto lg:resize-y ${draggingWindowId && dropTargetId === id ? "ring-2 ring-[#ffe169] ring-offset-2 ring-offset-[#008080]" : ""}`}
+        className={`${focused ? "md:col-span-2" : ""} min-h-[320px] lg:overflow-auto lg:resize-y ${draggingWindowId && dropTargetId === id ? "ring-2 ring-[#ffe169] ring-offset-2 ring-offset-[#008080]" : ""}`}
       >
         <DesktopWindow
           id={id}
@@ -2288,7 +2277,7 @@ export default function App() {
           icon={windowConfig.icon}
           onClose={() => closeWindow(id)}
           onToggleFill={() => toggleWindowFill(id)}
-          isFilled={filled}
+          isFilled={focused}
           canToggleFill={openWindows.length > 1}
           onWindowDragStart={() => setDraggingWindowId(id)}
           onWindowDragEnd={() => {
@@ -2331,7 +2320,7 @@ export default function App() {
 
           <div className="mb-2 flex items-center gap-2 border border-[#7f7f7f] bg-[#d8d8d8] px-2 py-1 shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080]">
             <p className="hidden flex-1 md:block font-mono text-[10px] uppercase tracking-[0.1em] text-[#222]">
-              Open windows from desktop icons. Drag a title bar onto another window to reorder. Fill focuses one window by default when opening; Split shares the layout.
+              Open windows from desktop icons. Drag a title bar onto another window to reorder. Fill adds a window to the focused scroll stack; Split moves it to the shared grid.
             </p>
             <div className="ml-auto flex items-center gap-2">
               <span className="border border-[#7f7f7f] bg-[#efefef] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[#111]">
@@ -2353,19 +2342,20 @@ export default function App() {
           ) : null}
           <div ref={windowPaneRef} onScroll={updateScrollButtonVisibility} className="lg:h-full lg:overflow-y-auto pr-1">
             <div className="flex flex-col gap-4 md:hidden">
-              {/* Mobile: show focused window only when Fill is active, otherwise all windows. */}
-              {(filledWindow ? openWindows.filter((id) => id === filledWindow) : openWindows).map(renderWindowTile)}
+              {focusedWindows.map(renderWindowTile)}
+              {splitWindows.length > 0 ? <div className="flex flex-col gap-4">{splitWindows.map(renderWindowTile)}</div> : null}
             </div>
             <div className="hidden gap-4 md:flex md:flex-col">
-              {/* Desktop: filled windows at top, split windows below. */}
-              {filledWindows.map(renderWindowTile)}
-              <div className="grid items-start gap-4 md:grid-cols-2">
-                {tiledColumns.map((column, columnIndex) => (
-                  <div key={`column-${columnIndex}`} className="flex flex-col gap-4">
-                    {column.map(renderWindowTile)}
-                  </div>
-                ))}
-              </div>
+              {focusedWindows.map(renderWindowTile)}
+              {splitWindows.length > 0 ? (
+                <div className="grid items-start gap-4 md:grid-cols-2">
+                  {tiledColumns.map((column, columnIndex) => (
+                    <div key={`column-${columnIndex}`} className="flex flex-col gap-4">
+                      {column.map(renderWindowTile)}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
