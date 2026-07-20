@@ -2013,11 +2013,11 @@ export default function App() {
   // Start/menu panel open state.
   const [menuOpen, setMenuOpen] = useState(false);
   // Which windows are currently open.
-  const [openWindows, setOpenWindows] = useState<WindowId[]>(["home", "projects"]);
+  const [openWindows, setOpenWindows] = useState<WindowId[]>(["home"]);
   // Z-order list (last item is visually on top).
-  const [zStack, setZStack] = useState<WindowId[]>(["home", "projects"]);
+  const [zStack, setZStack] = useState<WindowId[]>(["home"]);
   // Windows in focused full-width scroll stack.
-  const [focusedWindowIds, setFocusedWindowIds] = useState<WindowId[]>(["home", "projects"]);
+  const [focusedWindowIds, setFocusedWindowIds] = useState<WindowId[]>(["home"]);
   // Drag and drop state for reordering windows.
   const [draggingWindowId, setDraggingWindowId] = useState<WindowId | null>(null);
   const [dropTargetId, setDropTargetId] = useState<WindowId | null>(null);
