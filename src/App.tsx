@@ -52,6 +52,11 @@ type Project = {
   outcome: string;
   tags: string[];
   links?: Array<{ label: string; url: string }>;
+  insight?: {
+    reflection: string;
+    decisions: string[];
+    learnings?: string[];
+  };
 };
 
 type LabItem = {
@@ -110,6 +115,19 @@ const PROJECTS: Project[] = [
       { label: "Live Site", url: "https://askmylo.ai/" },
       { label: "Architecture Doc", url: "./ZippApproval-Architecture-For-Development.pdf" },
     ],
+    insight: {
+      reflection:
+        "I wanted voice AI to feel accountable, not magical — every step visible, every handoff intentional. The architecture doc maps how compliance, RAG, and human escalation stay connected across the stack.",
+      decisions: [
+        "Separated orchestration from experience so policy and prompts can evolve without breaking the voice UI.",
+        "Built funnel step tracking and drop-off logging before optimizing copy.",
+        "Designed handoff CTAs as first-class interaction states, not error fallbacks.",
+      ],
+      learnings: [
+        "Regulated AI needs audit trails as much as conversational polish.",
+        "Visible system state builds trust faster than smoother small talk.",
+      ],
+    },
   },
   {
     id: "appointment-booking-chatbot",
@@ -141,6 +159,19 @@ const PROJECTS: Project[] = [
         url: "https://www.figma.com/design/LFMYSd2A265NaByRpjxNr1/Sip-project?m=auto&t=ogFWsilYz070ggpD-1",
       },
     ],
+    insight: {
+      reflection:
+        "Preventative health only works if the product feels safe to open every day. I focused on calm pacing and readable hierarchy so tracking amyloid beta-related habits never feels like a clinical chore.",
+      decisions: [
+        "Prioritized weekly rhythm over dense daily dashboards.",
+        "Reduced visual noise so caregivers and users can scan status quickly.",
+        "Framed the experience around gentle habit building, not alarm-driven tracking.",
+      ],
+      learnings: [
+        "Long-term health UX wins when repetition feels supportive, not punitive.",
+        "Persona work upstream made interface priorities much clearer.",
+      ],
+    },
   },
   {
     id: "uat-competition-site",
@@ -245,8 +276,27 @@ const PROJECTS: Project[] = [
         url: "https://www.figma.com/design/XIbKiTGC5OSfYMuQiGbDOb/AZ-HUGS-mockup?m=auto&t=lmFj5C2I5q8Bihtn-1",
       },
     ],
+    insight: {
+      reflection:
+        "AZ HUGS needed a site that earns trust quickly — donors, volunteers, and community members all arrive with different goals but share a need for clarity and warmth.",
+      decisions: [
+        "Mapped donate, volunteer, and program paths before visual design.",
+        "Kept calls to action consistent across mobile and desktop layouts.",
+        "Used Figma mockups to validate hierarchy before shipping the live site.",
+      ],
+      learnings: [
+        "Nonprofit sites convert better when program stories and action paths are equally visible.",
+        "Mockups helped stakeholders agree on tone before build-out.",
+      ],
+    },
   },
 ];
+
+const FEATURED_PROJECT_IDS = ["az-hugs", "voice-ai-agent", "health-loop"] as const;
+
+const FEATURED_PROJECTS = FEATURED_PROJECT_IDS.map((id) => PROJECTS.find((project) => project.id === id)).filter(
+  (project): project is Project => project !== undefined,
+);
 
 // Concept projects for the Lab window — ideas explored in video, not yet full case studies.
 const LAB_ITEMS: LabItem[] = [
@@ -471,10 +521,134 @@ function DesktopWindow({ title, icon, onClose, onToggleFill, isFilled, canToggle
 
 // --- Page contents (window-friendly) --------------------------------------
 
-// Home screen content.
-function HomeContent() {
+// Mini Windows-style card for featured projects on Home.
+function MiniProjectWindow({
+  project,
+  onOpenProject,
+  onMoreInfo,
+}: {
+  project: Project;
+  onOpenProject: (projectId: string) => void;
+  onMoreInfo: (projectId: string) => void;
+}) {
   return (
-    <div className="w-full max-w-[900px]">
+    <div className="border border-[#7f7f7f] bg-[#c0c0c0] shadow-[2px_2px_0_#2b6262]">
+      <div className="flex items-center justify-between bg-[linear-gradient(90deg,#000080,#1084d0)] px-2 py-1 text-white">
+        <p className="truncate font-mono text-[10px] uppercase tracking-[0.08em]">{project.title}</p>
+      </div>
+      <div className="bg-[#f5f5f5] p-3">
+        <div className="mb-2 flex flex-wrap gap-1">
+          <span className="border border-[#7f7f7f] bg-white px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em]">{project.focus}</span>
+          <span className="border border-[#7f7f7f] bg-white px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em]">{project.status}</span>
+        </div>
+        <p className="text-sm leading-6">{project.summary}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button onClick={() => onOpenProject(project.id)}>Open Project</Button>
+          <Button onClick={() => onMoreInfo(project.id)} className="bg-[#dfefff]">
+            More Info
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProjectDetailContent({
+  project,
+  onBack,
+}: {
+  project: Project;
+  onBack: () => void;
+}) {
+  return (
+    <div className="border border-[#7f7f7f] bg-[#efefef] p-4 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <Button onClick={onBack}>
+          <ArrowLeft className="h-4 w-4" /> Back to Projects
+        </Button>
+      </div>
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <span className="border border-[#7f7f7f] bg-white px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em]">{project.focus}</span>
+        <span className="border border-[#7f7f7f] bg-white px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em]">{project.status}</span>
+      </div>
+      <h3 className="text-2xl font-semibold leading-tight">{project.title}</h3>
+      <p className="mt-3 leading-7">{project.details}</p>
+      <div className="mt-4 grid gap-3 grid-cols-1">
+        <div className="border border-[#7f7f7f] bg-white p-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Problem</p>
+          <p className="mt-2 text-sm leading-6">{project.problem}</p>
+        </div>
+        <div className="border border-[#7f7f7f] bg-white p-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Process</p>
+          <p className="mt-2 text-sm leading-6">{project.process}</p>
+        </div>
+        <div className="border border-[#7f7f7f] bg-white p-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Outcome</p>
+          <p className="mt-2 text-sm leading-6">{project.outcome}</p>
+        </div>
+        {project.insight ? (
+          <>
+            <div className="border border-[#7f7f7f] bg-white p-3">
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Reflection</p>
+              <p className="mt-2 text-sm leading-6">{project.insight.reflection}</p>
+            </div>
+            <div className="border border-[#7f7f7f] bg-white p-3">
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Key Decisions</p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6">
+                {project.insight.decisions.map((decision) => (
+                  <li key={decision}>{decision}</li>
+                ))}
+              </ul>
+            </div>
+            {project.insight.learnings?.length ? (
+              <div className="border border-[#7f7f7f] bg-white p-3">
+                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Learnings</p>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6">
+                  {project.insight.learnings.map((learning) => (
+                    <li key={learning}>{learning}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </>
+        ) : null}
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {project.tags.map((tag) => (
+          <span key={tag} className="border border-[#7f7f7f] bg-white px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em]">
+            {tag}
+          </span>
+        ))}
+      </div>
+      {project.links?.length ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {project.links.map((link) => (
+            <a
+              key={link.url}
+              href={link.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 border border-[#7f7f7f] bg-[#c0c0c0] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#404040] hover:bg-[#dfefff]"
+            >
+              {link.label} <ExternalLink className="h-4 w-4" />
+            </a>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// Home screen content.
+function HomeContent({
+  onOpenProject,
+  onMoreInfo,
+}: {
+  onOpenProject: (projectId: string) => void;
+  onMoreInfo: (projectId: string) => void;
+}) {
+  return (
+    <div className="w-full max-w-[1100px]">
       <div className="border border-[#8fbcbc] bg-[#008080] p-3 shadow-[inset_1px_1px_0_#bce8e8,inset_-1px_-1px_0_#004f4f]">
         <div className="flex flex-col gap-4 sm:grid sm:h-full sm:grid-cols-[120px_1fr]">
           <div className="space-y-2 pt-1 text-white">
@@ -500,6 +674,14 @@ function HomeContent() {
                 </div>
               </div>
             </Frame>
+          </div>
+        </div>
+        <div className="mt-4 border border-[#8fbcbc] bg-[#008080]/40 p-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#f4f1e8]">Featured Projects</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURED_PROJECTS.map((project) => (
+              <MiniProjectWindow key={project.id} project={project} onOpenProject={onOpenProject} onMoreInfo={onMoreInfo} />
+            ))}
           </div>
         </div>
       </div>
@@ -1679,9 +1861,15 @@ function SolitaireContent() {
 function ProjectsContent({
   navTarget,
   onNavHandled,
+  projectDetailId,
+  onCloseDetail,
+  onMoreInfo,
 }: {
   navTarget: PortfolioNavTarget | null;
   onNavHandled: () => void;
+  projectDetailId: string | null;
+  onCloseDetail: () => void;
+  onMoreInfo: (projectId: string) => void;
 }) {
   const [activeFocus, setActiveFocus] = useState<"All" | ProjectFocus>("All");
   const [activeProjectId, setActiveProjectId] = useState<string>(PROJECTS[0].id);
@@ -1692,6 +1880,15 @@ function ProjectsContent({
     setActiveProjectId(navTarget.projectId);
     onNavHandled();
   }, [navTarget, onNavHandled]);
+
+  useEffect(() => {
+    if (projectDetailId) {
+      setActiveFocus("All");
+      setActiveProjectId(projectDetailId);
+    }
+  }, [projectDetailId]);
+
+  const detailProject = projectDetailId ? PROJECTS.find((project) => project.id === projectDetailId) : null;
 
   // Only show projects that match the selected focus.
   const visibleProjects = useMemo(() => (activeFocus === "All" ? PROJECTS : PROJECTS.filter((project) => project.focus === activeFocus)), [activeFocus]);
@@ -1725,6 +1922,10 @@ function ProjectsContent({
       <Frame className="p-4">
         <ScreenLabel subtitle="Projects" title="Fully built projects with complete case studies." />
         <p className="mb-4 max-w-3xl leading-7">In-depth work with problem, process, outcome, and deliverables — the portfolio&apos;s finished project space.</p>
+        {detailProject ? (
+          <ProjectDetailContent project={detailProject} onBack={onCloseDetail} />
+        ) : (
+          <>
         <div className="mb-4 flex flex-wrap items-center gap-2">
           {focusFilters.map((focus) => (
             <Button
@@ -1811,12 +2012,19 @@ function ProjectsContent({
                     ))}
                   </div>
                 ) : null}
+                <div className="mt-4">
+                  <Button onClick={() => onMoreInfo(activeProject.id)} className="bg-[#dfefff]">
+                    More Info
+                  </Button>
+                </div>
               </div>
             ) : (
               <Frame className="p-4">No projects match this filter.</Frame>
             )}
           </div>
         </div>
+          </>
+        )}
       </Frame>
     </div>
   );
@@ -1849,9 +2057,14 @@ export default function App() {
   // Cross-window navigation from Objectives reference links.
   const [navTarget, setNavTarget] = useState<PortfolioNavTarget | null>(null);
   const [highlightedLabId, setHighlightedLabId] = useState<string | null>(null);
+  const [projectDetailId, setProjectDetailId] = useState<string | null>(null);
 
   const handleNavHandled = useCallback(() => {
     setNavTarget(null);
+  }, []);
+
+  const closeProjectDetail = useCallback(() => {
+    setProjectDetailId(null);
   }, []);
 
   // Update the taskbar clock every 30 seconds.
@@ -1878,7 +2091,6 @@ export default function App() {
     const windowLabel = WINDOWS.find((window) => window.id === id)?.title ?? id;
     setOpenWindows((prev) => {
       if (prev.includes(id)) {
-        // No duplicate windows.
         announceStatus(`${windowLabel} is already open.`);
         return prev;
       }
@@ -1886,8 +2098,20 @@ export default function App() {
       return [...prev, id];
     });
     setMenuOpen(false);
-    // Opening a window should also bring it to front.
+    setFilledWindow(id);
     bringToFront(id);
+  };
+
+  const openProject = (projectId: string) => {
+    setProjectDetailId(null);
+    setNavTarget({ window: "projects", projectId });
+    openWindow("projects");
+  };
+
+  const openProjectDetail = (projectId: string) => {
+    setProjectDetailId(projectId);
+    setNavTarget({ window: "projects", projectId });
+    openWindow("projects");
   };
 
   const handleReferenceClick = (target: PortfolioNavTarget) => {
@@ -1906,6 +2130,9 @@ export default function App() {
     setOpenWindows((prev) => prev.filter((item) => item !== id));
     setZStack((prev) => prev.filter((item) => item !== id));
     setFilledWindow((prev) => (prev === id ? null : prev));
+    if (id === "projects") {
+      setProjectDetailId(null);
+    }
     announceStatus(`${windowLabel} closed.`);
   };
 
@@ -2016,16 +2243,24 @@ export default function App() {
   // Map each window id to its matching content component.
   const windowContentMap: Record<WindowId, React.ReactNode> = useMemo(
     () => ({
-      home: <HomeContent />,
+      home: <HomeContent onOpenProject={openProject} onMoreInfo={openProjectDetail} />,
       about: <AboutContent />,
       lab: <LabContent highlightedLabId={highlightedLabId} />,
-      projects: <ProjectsContent navTarget={navTarget} onNavHandled={handleNavHandled} />,
+      projects: (
+        <ProjectsContent
+          navTarget={navTarget}
+          onNavHandled={handleNavHandled}
+          projectDetailId={projectDetailId}
+          onCloseDetail={closeProjectDetail}
+          onMoreInfo={openProjectDetail}
+        />
+      ),
       objectives: <ObjectivesContent onReferenceClick={handleReferenceClick} />,
       contact: <ContactContent />,
       paint: <PaintContent />,
       solitaire: <SolitaireContent />,
     }),
-    [highlightedLabId, navTarget, handleNavHandled],
+    [highlightedLabId, navTarget, handleNavHandled, projectDetailId, closeProjectDetail, openProject, openProjectDetail],
   );
 
   // In split mode, distribute windows into two columns.
@@ -2122,7 +2357,7 @@ export default function App() {
 
           <div className="mb-2 flex items-center gap-2 border border-[#7f7f7f] bg-[#d8d8d8] px-2 py-1 shadow-[inset_1px_1px_0_#ffffff,inset_-1px_-1px_0_#808080]">
             <p className="hidden flex-1 md:block font-mono text-[10px] uppercase tracking-[0.1em] text-[#222]">
-              Open windows from desktop icons. Drag a title bar onto another window to reorder. Fill focuses one window, Split shares the layout.
+              Open windows from desktop icons. Drag a title bar onto another window to reorder. Fill focuses one window by default when opening; Split shares the layout.
             </p>
             <div className="ml-auto flex items-center gap-2">
               <span className="border border-[#7f7f7f] bg-[#efefef] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[#111]">
