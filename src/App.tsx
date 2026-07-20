@@ -379,7 +379,7 @@ const DEGREE_OBJECTIVES: DegreeObjective[] = [
     text: "Using professional tools and pipeline processes, prototype and build innovative interfaces and interactions for multiple platforms, including web, PC, mobile, handheld, and next-generation devices.",
     references: [
       { kind: "project", id: "az-hugs" },
-      { kind: "lab", id: null },
+      { kind: "project", id: "health-loop" },
     ],
   },
 ];
@@ -718,13 +718,7 @@ function AboutContent() {
 }
 
 // Objectives window content.
-function ReferenceSlot({
-  reference,
-  onReferenceClick,
-}: {
-  reference: ObjectiveReference;
-  onReferenceClick: (target: PortfolioNavTarget) => void;
-}) {
+function ReferenceSlot({ reference }: { reference: ObjectiveReference }) {
   const title = resolveReferenceTitle(reference);
   const mediaLinks = resolveReferenceMedia(reference);
 
@@ -739,17 +733,7 @@ function ReferenceSlot({
 
   return (
     <div className="border border-[#7f7f7f] bg-white p-2 shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#808080]">
-      <button
-        type="button"
-        onClick={() =>
-          onReferenceClick(
-            reference.kind === "project" ? { window: "projects", projectId: reference.id! } : { window: "lab", labId: reference.id! },
-          )
-        }
-        className="w-full text-left text-sm font-semibold hover:text-[#000080]"
-      >
-        {title}
-      </button>
+      <p className="text-sm font-semibold">{title}</p>
       {mediaLinks.length > 0 ? (
         <div className="mt-2 flex flex-wrap gap-1">
           {mediaLinks.map((link) => (
@@ -769,7 +753,7 @@ function ReferenceSlot({
   );
 }
 
-function ObjectivesContent({ onReferenceClick }: { onReferenceClick: (target: PortfolioNavTarget) => void }) {
+function ObjectivesContent() {
   return (
     <div className="w-[880px] max-w-full">
       <Frame className="p-4">
@@ -795,7 +779,7 @@ function ObjectivesContent({ onReferenceClick }: { onReferenceClick: (target: Po
                   <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Objective {objective.number}</p>
                   <div className="mt-2 space-y-2">
                     {objective.references.map((reference, index) => (
-                      <ReferenceSlot key={`${objective.number}-${index}`} reference={reference} onReferenceClick={onReferenceClick} />
+                      <ReferenceSlot key={`${objective.number}-${index}`} reference={reference} />
                     ))}
                   </div>
                 </div>
@@ -2042,7 +2026,7 @@ export default function App() {
   // Z-order list (last item is visually on top).
   const [zStack, setZStack] = useState<WindowId[]>(["home", "projects"]);
   // Window that is in focused "Fill" mode.
-  const [filledWindow, setFilledWindow] = useState<WindowId | null>(null);
+  const [filledWindow, setFilledWindow] = useState<WindowId | null>("home");
   // Drag and drop state for reordering windows.
   const [draggingWindowId, setDraggingWindowId] = useState<WindowId | null>(null);
   const [dropTargetId, setDropTargetId] = useState<WindowId | null>(null);
@@ -2112,16 +2096,6 @@ export default function App() {
     setProjectDetailId(projectId);
     setNavTarget({ window: "projects", projectId });
     openWindow("projects");
-  };
-
-  const handleReferenceClick = (target: PortfolioNavTarget) => {
-    openWindow(target.window);
-    setNavTarget(target);
-    if (target.window === "lab") {
-      setHighlightedLabId(target.labId);
-    } else {
-      setHighlightedLabId(null);
-    }
   };
 
   // Close a window and clean up related state.
@@ -2199,12 +2173,12 @@ export default function App() {
 
   // Reset fill/drag states and keep open windows in default order.
   const resetLayout = () => {
-    // Turn off all temporary layout states.
-    setFilledWindow(null);
     setDraggingWindowId(null);
     setDropTargetId(null);
-    setOpenWindows((prev) => WINDOWS.map((window) => window.id).filter((id) => prev.includes(id)));
-    announceStatus("Layout reset to split mode.");
+    const reordered = WINDOWS.map((window) => window.id).filter((id) => openWindows.includes(id));
+    setOpenWindows(reordered);
+    setFilledWindow(reordered[0] ?? "home");
+    announceStatus("Layout reset with focused view.");
   };
 
   // A window is "filled" if it is the only one or it matches filledWindow.
@@ -2255,7 +2229,7 @@ export default function App() {
           onMoreInfo={openProjectDetail}
         />
       ),
-      objectives: <ObjectivesContent onReferenceClick={handleReferenceClick} />,
+      objectives: <ObjectivesContent />,
       contact: <ContactContent />,
       paint: <PaintContent />,
       solitaire: <SolitaireContent />,
