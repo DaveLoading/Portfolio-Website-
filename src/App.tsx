@@ -524,11 +524,9 @@ function DesktopWindow({ title, icon, onClose, onToggleFill, isFilled, canToggle
 // Mini Windows-style card for featured projects on Home.
 function MiniProjectWindow({
   project,
-  onOpenProject,
   onMoreInfo,
 }: {
   project: Project;
-  onOpenProject: (projectId: string) => void;
   onMoreInfo: (projectId: string) => void;
 }) {
   return (
@@ -542,8 +540,7 @@ function MiniProjectWindow({
           <span className="border border-[#7f7f7f] bg-white px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em]">{project.status}</span>
         </div>
         <p className="text-sm leading-6">{project.summary}</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Button onClick={() => onOpenProject(project.id)}>Open Project</Button>
+        <div className="mt-3">
           <Button onClick={() => onMoreInfo(project.id)} className="bg-[#dfefff]">
             More Info
           </Button>
@@ -640,13 +637,7 @@ function ProjectDetailContent({
 }
 
 // Home screen content.
-function HomeContent({
-  onOpenProject,
-  onMoreInfo,
-}: {
-  onOpenProject: (projectId: string) => void;
-  onMoreInfo: (projectId: string) => void;
-}) {
+function HomeContent({ onMoreInfo }: { onMoreInfo: (projectId: string) => void }) {
   return (
     <div className="w-full max-w-[1100px]">
       <div className="border border-[#8fbcbc] bg-[#008080] p-3 shadow-[inset_1px_1px_0_#bce8e8,inset_-1px_-1px_0_#004f4f]">
@@ -680,7 +671,7 @@ function HomeContent({
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#f4f1e8]">Featured Projects</p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURED_PROJECTS.map((project) => (
-              <MiniProjectWindow key={project.id} project={project} onOpenProject={onOpenProject} onMoreInfo={onMoreInfo} />
+              <MiniProjectWindow key={project.id} project={project} onMoreInfo={onMoreInfo} />
             ))}
           </div>
         </div>
@@ -2086,12 +2077,6 @@ export default function App() {
     bringToFront(id);
   };
 
-  const openProject = (projectId: string) => {
-    setProjectDetailId(null);
-    setNavTarget({ window: "projects", projectId });
-    openWindow("projects");
-  };
-
   const openProjectDetail = (projectId: string) => {
     setProjectDetailId(projectId);
     setNavTarget({ window: "projects", projectId });
@@ -2209,7 +2194,7 @@ export default function App() {
   // Map each window id to its matching content component.
   const windowContentMap: Record<WindowId, React.ReactNode> = useMemo(
     () => ({
-      home: <HomeContent onOpenProject={openProject} onMoreInfo={openProjectDetail} />,
+      home: <HomeContent onMoreInfo={openProjectDetail} />,
       about: <AboutContent />,
       lab: <LabContent highlightedLabId={highlightedLabId} />,
       projects: (
@@ -2226,7 +2211,7 @@ export default function App() {
       paint: <PaintContent />,
       solitaire: <SolitaireContent />,
     }),
-    [highlightedLabId, navTarget, handleNavHandled, projectDetailId, closeProjectDetail, openProject, openProjectDetail],
+    [highlightedLabId, navTarget, handleNavHandled, projectDetailId, closeProjectDetail, openProjectDetail],
   );
 
   // In split mode, distribute windows into two columns.
