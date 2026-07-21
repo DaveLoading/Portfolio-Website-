@@ -159,7 +159,7 @@ const PROJECTS: Project[] = [
         url: "https://www.figma.com/design/LFMYSd2A265NaByRpjxNr1/Sip-project?m=auto&t=ogFWsilYz070ggpD-1",
       },
       {
-        label: "Watch Presentation",
+        label: "YouTube",
         url: "https://www.youtube.com/watch?v=s8JgABiOGqU",
       },
     ],
@@ -472,6 +472,34 @@ function ScreenLabel({ title, subtitle }: { title: string; subtitle: string }) {
   );
 }
 
+function ProjectLinks({
+  links,
+  className = "mt-3",
+  iconClassName = "h-4 w-4",
+}: {
+  links?: Array<{ label: string; url: string }>;
+  className?: string;
+  iconClassName?: string;
+}) {
+  if (!links?.length) return null;
+
+  return (
+    <div className={`${className} flex flex-wrap gap-2`}>
+      {links.map((link) => (
+        <a
+          key={link.url}
+          href={link.url}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 border border-[#7f7f7f] bg-[#c0c0c0] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#404040] hover:bg-[#dfefff]"
+        >
+          {link.label} <ExternalLink className={iconClassName} />
+        </a>
+      ))}
+    </div>
+  );
+}
+
 // --- Window shells ---------------------------------------------------------
 
 type DesktopWindowProps = {
@@ -544,6 +572,7 @@ function MiniProjectWindow({
           <span className="border border-[#7f7f7f] bg-white px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em]">{project.status}</span>
         </div>
         <p className="text-sm leading-6">{project.summary}</p>
+        <ProjectLinks links={project.links} iconClassName="h-3.5 w-3.5" />
         <div className="mt-3">
           <Button onClick={() => onMoreInfo(project.id)} className="bg-[#dfefff]">
             More Info
@@ -574,6 +603,7 @@ function ProjectDetailContent({
       </div>
       <h3 className="text-2xl font-semibold leading-tight">{project.title}</h3>
       <p className="mt-3 leading-7">{project.details}</p>
+      <ProjectLinks links={project.links} className="mt-4" />
       <div className="mt-4 grid gap-3 grid-cols-1">
         <div className="border border-[#7f7f7f] bg-white p-3">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Problem</p>
@@ -621,21 +651,6 @@ function ProjectDetailContent({
           </span>
         ))}
       </div>
-      {project.links?.length ? (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {project.links.map((link) => (
-            <a
-              key={link.url}
-              href={link.url}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 border border-[#7f7f7f] bg-[#c0c0c0] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#404040] hover:bg-[#dfefff]"
-            >
-              {link.label} <ExternalLink className="h-4 w-4" />
-            </a>
-          ))}
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -1955,6 +1970,7 @@ function ProjectsContent({
                 </div>
                 <h3 className="text-2xl font-semibold leading-tight">{activeProject.title}</h3>
                 <p className="mt-3 leading-7">{activeProject.details}</p>
+                <ProjectLinks links={activeProject.links} className="mt-4" />
                 <div className="mt-4 grid gap-3 grid-cols-1">
                   <div className="border border-[#7f7f7f] bg-white p-3">
                     <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#000080]">Problem</p>
@@ -1976,21 +1992,6 @@ function ProjectsContent({
                     </span>
                   ))}
                 </div>
-                {activeProject.links?.length ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {activeProject.links.map((link) => (
-                      <a
-                        key={link.url}
-                        href={link.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 border border-[#7f7f7f] bg-[#c0c0c0] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.1em] shadow-[inset_1px_1px_0_#fff,inset_-1px_-1px_0_#404040] hover:bg-[#dfefff]"
-                      >
-                        {link.label} <ExternalLink className="h-4 w-4" />
-                      </a>
-                    ))}
-                  </div>
-                ) : null}
                 <div className="mt-4">
                   <Button onClick={() => onMoreInfo(activeProject.id)} className="bg-[#dfefff]">
                     More Info
