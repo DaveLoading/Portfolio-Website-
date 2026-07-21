@@ -158,6 +158,10 @@ const PROJECTS: Project[] = [
         label: "Figma",
         url: "https://www.figma.com/design/LFMYSd2A265NaByRpjxNr1/Sip-project?m=auto&t=ogFWsilYz070ggpD-1",
       },
+      {
+        label: "Watch Presentation",
+        url: "https://www.youtube.com/watch?v=s8JgABiOGqU",
+      },
     ],
     insight: {
       reflection:
