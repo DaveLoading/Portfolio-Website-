@@ -99,7 +99,7 @@ type Card = {
 };
 
 // These are the main projects shown in the Projects window.
-const PROJECTS: Project[] = [
+const PORTFOLIO_PROJECTS: Project[] = [
   {
     id: "voice-ai-agent",
     title: "Voice AI Agent",
@@ -178,6 +178,38 @@ const PROJECTS: Project[] = [
     },
   },
   {
+    id: "az-hugs",
+    title: "AZ HUGS Website",
+    focus: "Websites",
+    status: "Shipped",
+    summary: "Website for a Phoenix nonprofit supporting people experiencing homelessness.",
+    details: "Designed and built the AZ HUGS web presence — a 501(c)(3) nonprofit focused on outreach, Sunday picnics, the HUGS HOUSE shelter program, and Arizona QCO tax-credit donations.",
+    problem: "Community nonprofits need a trustworthy site that makes programs, donation paths, and support options easy to find.",
+    process: "Mapped key user journeys (donate, volunteer, learn programs), designed mockups in Figma, and shipped the live site.",
+    outcome: "A live nonprofit website with clear calls to action for donations, care bags, and program information.",
+    tags: ["Web UX", "Nonprofit", "Figma", "Information Architecture"],
+    links: [
+      { label: "Live Site", url: "https://www.azhugs.org/" },
+      {
+        label: "Figma Mockup",
+        url: "https://www.figma.com/design/XIbKiTGC5OSfYMuQiGbDOb/AZ-HUGS-mockup?m=auto&t=lmFj5C2I5q8Bihtn-1",
+      },
+    ],
+    insight: {
+      reflection:
+        "AZ HUGS needed a site that earns trust quickly — donors, volunteers, and community members all arrive with different goals but share a need for clarity and warmth.",
+      decisions: [
+        "Mapped donate, volunteer, and program paths before visual design.",
+        "Kept calls to action consistent across mobile and desktop layouts.",
+        "Used Figma mockups to validate hierarchy before shipping the live site.",
+      ],
+      learnings: [
+        "Nonprofit sites convert better when program stories and action paths are equally visible.",
+        "Mockups helped stakeholders agree on tone before build-out.",
+      ],
+    },
+  },
+  {
     id: "uat-competition-site",
     title: "UAT Competition Website",
     focus: "Websites",
@@ -244,6 +276,10 @@ const PROJECTS: Project[] = [
       },
     ],
   },
+];
+
+// Objective-only references — hidden from the Projects window but kept for Objectives lookups.
+const OBJECTIVE_ONLY_PROJECTS: Project[] = [
   {
     id: "canva-design-phpi",
     title: "Project Katalyst — Personas",
@@ -262,43 +298,13 @@ const PROJECTS: Project[] = [
       },
     ],
   },
-  {
-    id: "az-hugs",
-    title: "AZ HUGS Website",
-    focus: "Websites",
-    status: "Shipped",
-    summary: "Website for a Phoenix nonprofit supporting people experiencing homelessness.",
-    details: "Designed and built the AZ HUGS web presence — a 501(c)(3) nonprofit focused on outreach, Sunday picnics, the HUGS HOUSE shelter program, and Arizona QCO tax-credit donations.",
-    problem: "Community nonprofits need a trustworthy site that makes programs, donation paths, and support options easy to find.",
-    process: "Mapped key user journeys (donate, volunteer, learn programs), designed mockups in Figma, and shipped the live site.",
-    outcome: "A live nonprofit website with clear calls to action for donations, care bags, and program information.",
-    tags: ["Web UX", "Nonprofit", "Figma", "Information Architecture"],
-    links: [
-      { label: "Live Site", url: "https://www.azhugs.org/" },
-      {
-        label: "Figma Mockup",
-        url: "https://www.figma.com/design/XIbKiTGC5OSfYMuQiGbDOb/AZ-HUGS-mockup?m=auto&t=lmFj5C2I5q8Bihtn-1",
-      },
-    ],
-    insight: {
-      reflection:
-        "AZ HUGS needed a site that earns trust quickly — donors, volunteers, and community members all arrive with different goals but share a need for clarity and warmth.",
-      decisions: [
-        "Mapped donate, volunteer, and program paths before visual design.",
-        "Kept calls to action consistent across mobile and desktop layouts.",
-        "Used Figma mockups to validate hierarchy before shipping the live site.",
-      ],
-      learnings: [
-        "Nonprofit sites convert better when program stories and action paths are equally visible.",
-        "Mockups helped stakeholders agree on tone before build-out.",
-      ],
-    },
-  },
 ];
+
+const ALL_PROJECTS: Project[] = [...PORTFOLIO_PROJECTS, ...OBJECTIVE_ONLY_PROJECTS];
 
 const FEATURED_PROJECT_IDS = ["az-hugs", "voice-ai-agent", "health-loop"] as const;
 
-const FEATURED_PROJECTS = FEATURED_PROJECT_IDS.map((id) => PROJECTS.find((project) => project.id === id)).filter(
+const FEATURED_PROJECTS = FEATURED_PROJECT_IDS.map((id) => PORTFOLIO_PROJECTS.find((project) => project.id === id)).filter(
   (project): project is Project => project !== undefined,
 );
 
@@ -391,7 +397,7 @@ const DEGREE_OBJECTIVES: DegreeObjective[] = [
 function resolveReferenceTitle(reference: ObjectiveReference): string | null {
   if (!reference.id) return null;
   if (reference.kind === "project") {
-    return PROJECTS.find((project) => project.id === reference.id)?.title ?? null;
+    return ALL_PROJECTS.find((project) => project.id === reference.id)?.title ?? null;
   }
   return LAB_ITEMS.find((item) => item.id === reference.id)?.title ?? null;
 }
@@ -399,7 +405,7 @@ function resolveReferenceTitle(reference: ObjectiveReference): string | null {
 function resolveReferenceMedia(reference: ObjectiveReference): Array<{ label: string; url: string }> {
   if (!reference.id) return [];
   if (reference.kind === "project") {
-    return PROJECTS.find((project) => project.id === reference.id)?.links ?? [];
+    return ALL_PROJECTS.find((project) => project.id === reference.id)?.links ?? [];
   }
   const labItem = LAB_ITEMS.find((item) => item.id === reference.id);
   if (!labItem) return [];
@@ -572,7 +578,6 @@ function MiniProjectWindow({
           <span className="border border-[#7f7f7f] bg-white px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em]">{project.status}</span>
         </div>
         <p className="text-sm leading-6">{project.summary}</p>
-        <ProjectLinks links={project.links} iconClassName="h-3.5 w-3.5" />
         <div className="mt-3">
           <Button onClick={() => onMoreInfo(project.id)} className="bg-[#dfefff]">
             More Info
@@ -1866,7 +1871,7 @@ function ProjectsContent({
   onMoreInfo: (projectId: string) => void;
 }) {
   const [activeFocus, setActiveFocus] = useState<"All" | ProjectFocus>("All");
-  const [activeProjectId, setActiveProjectId] = useState<string>(PROJECTS[0].id);
+  const [activeProjectId, setActiveProjectId] = useState<string>(PORTFOLIO_PROJECTS[0].id);
 
   useEffect(() => {
     if (navTarget?.window !== "projects") return;
@@ -1882,15 +1887,15 @@ function ProjectsContent({
     }
   }, [projectDetailId]);
 
-  const detailProject = projectDetailId ? PROJECTS.find((project) => project.id === projectDetailId) : null;
+  const detailProject = projectDetailId ? PORTFOLIO_PROJECTS.find((project) => project.id === projectDetailId) : null;
 
   // Only show projects that match the selected focus.
-  const visibleProjects = useMemo(() => (activeFocus === "All" ? PROJECTS : PROJECTS.filter((project) => project.focus === activeFocus)), [activeFocus]);
+  const visibleProjects = useMemo(() => (activeFocus === "All" ? PORTFOLIO_PROJECTS : PORTFOLIO_PROJECTS.filter((project) => project.focus === activeFocus)), [activeFocus]);
 
   const activeProject =
     visibleProjects.find((project) => project.id === activeProjectId) ??
     visibleProjects[0] ??
-    PROJECTS[0];
+    PORTFOLIO_PROJECTS[0];
 
   const activeIndex = Math.max(
     visibleProjects.findIndex((project) => project.id === activeProject.id),
@@ -1926,8 +1931,8 @@ function ProjectsContent({
               key={focus}
               onClick={() => {
                 setActiveFocus(focus);
-                const nextList = focus === "All" ? PROJECTS : PROJECTS.filter((project) => project.focus === focus);
-                setActiveProjectId(nextList[0]?.id ?? PROJECTS[0].id);
+                const nextList = focus === "All" ? PORTFOLIO_PROJECTS : PORTFOLIO_PROJECTS.filter((project) => project.focus === focus);
+                setActiveProjectId(nextList[0]?.id ?? PORTFOLIO_PROJECTS[0].id);
               }}
               className={activeFocus === focus ? "bg-[#dfefff]" : ""}
             >
