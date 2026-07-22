@@ -160,7 +160,7 @@ const PROJECTS: Project[] = [
       },
       {
         label: "YouTube",
-        url: "https://www.youtube.com/watch?v=s8JgABiOGqU",
+        url: "https://youtu.be/NXIuXXJugGc",
       },
     ],
     insight: {
