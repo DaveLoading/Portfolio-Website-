@@ -155,6 +155,10 @@ const PORTFOLIO_PROJECTS: Project[] = [
     tags: ["Health UX", "Information Architecture", "UI Systems", "Research"],
     links: [
       {
+        label: "GitHub Repo",
+        url: "https://github.com/DaveLoading/Color-Purple-MVP",
+      },
+      {
         label: "Figma",
         url: "https://www.figma.com/design/LFMYSd2A265NaByRpjxNr1/Sip-project?m=auto&t=ogFWsilYz070ggpD-1",
       },
